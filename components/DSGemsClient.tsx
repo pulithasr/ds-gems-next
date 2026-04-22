@@ -205,13 +205,13 @@ function Modal({ gem, onClose }: { gem: any, onClose: () => void }) {
 
 // ─── ADMIN PANEL ──────────────────────────────────────────────────────────────
 function AdminPanel({ gems, onAdd, onUpdate, onRemove, onClose }: { gems: any[], onAdd: (g: any) => void, onUpdate: (g: any) => void, onRemove: (id: string) => void, onClose: () => void }) {
-  const emptyForm = { name: "", origin: "", weight: "", clarity: "", treatment: "", price: "", category: "Sapphire", description: "", badge: "", featured: false, images: [], video: "" };
+  const emptyForm: { name: string; origin: string; weight: string; clarity: string; treatment: string; price: string; category: string; description: string; badge: string; featured: boolean; images: string[]; video: string } = { name: "", origin: "", weight: "", clarity: "", treatment: "", price: "", category: "Sapphire", description: "", badge: "", featured: false, images: [], video: "" };
   const [form, setForm] = useState(emptyForm);
   const [uploading, setUploading] = useState(false);
   const [msg, setMsg] = useState("");
   const [editingId, setEditingId] = useState(null);
   const [tab, setTab] = useState("add");
-  const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
+  const set = (k: string, v: any) => setForm(f => ({ ...f, [k]: v }));
 
   const handleImageUpload = async (files: FileList) => {
     if (!files.length) return;
@@ -240,9 +240,9 @@ function AdminPanel({ gems, onAdd, onUpdate, onRemove, onClose }: { gems: any[],
     setForm(emptyForm); setTab("manage");
   };
 
-  const startEdit = (g) => { setForm({ ...g }); setEditingId(g.firestoreId); setTab("add"); setMsg(""); };    
+  const startEdit = (g: any) => { setForm({ ...g }); setEditingId(g.firestoreId); setTab("add"); setMsg(""); };    
   
-  const inp = { fontFamily: "sans-serif", fontSize: 14, border: "1px solid #cce0d4", borderRadius: 8, padding: "8px 12px", width: "100%", color: "#1a3a2a", outline: "none", boxSizing: "border-box", background: "#f8fdfb" };
+  const inp : React.CSSProperties = { fontFamily: "sans-serif", fontSize: 14, border: "1px solid #cce0d4", borderRadius: 8, padding: "8px 12px", width: "100%", color: "#1a3a2a", outline: "none", boxSizing: "border-box", background: "#f8fdfb" };
 
   return (
     <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.65)", zIndex: 2000, display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
@@ -276,7 +276,7 @@ function AdminPanel({ gems, onAdd, onUpdate, onRemove, onClose }: { gems: any[],
 
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }}>
                 {[["name","Gem Name *"],["origin","Origin"],["weight","Weight (e.g. 2.5 ct)"],["clarity","Clarity"],["treatment","Treatment"],["price","Price * (e.g. USD 3,200)"]].map(([k,lbl]) => (
-                  <div key={k}><div style={{ fontSize: 12, color: "#666", marginBottom: 4 }}>{lbl}</div><input style={inp} value={form[k]} onChange={e => set(k, e.target.value)} placeholder={lbl} /></div>
+                  <div key={k}><div style={{ fontSize: 12, color: "#666", marginBottom: 4 }}>{lbl}</div><input style={inp} value={(form as any)[k]} onChange={e => set(k, e.target.value)} placeholder={lbl} /></div>
                 ))}
               </div>
 
@@ -302,10 +302,10 @@ function AdminPanel({ gems, onAdd, onUpdate, onRemove, onClose }: { gems: any[],
                 <div style={{ display: "flex", gap: 8, marginBottom: form.images.length ? 10 : 0 }}>
                   <label style={{ background: form.images.length >= 5 ? "#aaa" : "#06402b", color: "#a8f0c8", borderRadius: 20, padding: "7px 16px", fontSize: 13, cursor: form.images.length >= 5 ? "not-allowed" : "pointer", whiteSpace: "nowrap" }}>
                     Upload Photos
-                    <input type="file" accept="image/*" multiple style={{ display: "none" }} onChange={e => handleImageUpload(e.target.files)} disabled={uploading || form.images.length >= 5} />
+                    <input type="file" accept="image/*" multiple style={{ display: "none" }} onChange={e => e.target.files && handleImageUpload(e.target.files)} disabled={uploading || form.images.length >= 5} />
                   </label>
                   <input style={{ ...inp, flex: 1 }} placeholder="Or paste Cloudinary URL + press Enter"
-                    onKeyDown={e => { if (e.key === "Enter" && e.target.value.trim() && form.images.length < 5) { set("images", [...form.images, e.target.value.trim()]); e.target.value = ""; } }} />
+                    onKeyDown={e => { const t = e.target as HTMLInputElement; if (e.key === "Enter" && t.value.trim() && form.images.length < 5) { set("images", [...form.images, t.value.trim()]); t.value = ""; } }} />
                 </div>
                 {form.images.length > 0 && (
                   <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
@@ -326,7 +326,7 @@ function AdminPanel({ gems, onAdd, onUpdate, onRemove, onClose }: { gems: any[],
                 <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
                   <label style={{ background: "#06402b", color: "#a8f0c8", borderRadius: 20, padding: "7px 16px", fontSize: 13, cursor: "pointer", whiteSpace: "nowrap" }}>
                     {form.video ? "Replace" : "Upload Video"}
-                    <input type="file" accept="video/*" style={{ display: "none" }} onChange={e => handleVideoUpload(e.target.files[0])} disabled={uploading} />
+                    <input type="file" accept="video/*" style={{ display: "none" }} onChange={e => e.target.files && handleVideoUpload(e.target.files[0])} disabled={uploading} />
                   </label>
                   <input style={{ ...inp, flex: 1 }} placeholder="Or paste YouTube or Cloudinary video URL" value={form.video} onChange={e => set("video", e.target.value)} />
                   {form.video && <button onClick={() => set("video", "")} style={{ background: "none", border: "1px solid #e04040", borderRadius: 20, padding: "6px 12px", color: "#e04040", fontSize: 12, cursor: "pointer" }}>Remove</button>}
