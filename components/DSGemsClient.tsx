@@ -377,7 +377,7 @@ function AdminPanel({ gems, onAdd, onUpdate, onRemove, onClose }) {
 }
 
 // ─── MAIN APP ─────────────────────────────────────────────────────────────────
-export default function DSGemsClient({ initialGems = [], initialPage = "home" }) {
+export default function DSGemsClient({ initialGems = [], initialPage = "home" }: { initialGems: any[], initialPage: string }) {
   const [gems, setGems] = useState(initialGems);
 
   useEffect(() => {
