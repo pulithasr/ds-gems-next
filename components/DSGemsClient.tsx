@@ -229,7 +229,7 @@ function AdminPanel({ gems, onAdd, onUpdate, onRemove, onClose }: { gems: any[],
     if (!file) return;
     setUploading(true); setMsg("Uploading video to Cloudinary…");
     try { const { url } = await uploadToCloudinary(file); set("video", url); setMsg("Video uploaded ✓"); }
-    catch (e) { setMsg("Video upload failed: " + e.message); }
+    catch (e: any) { setMsg("Video upload failed: " + e.message); }
     setUploading(false);
   };
 
