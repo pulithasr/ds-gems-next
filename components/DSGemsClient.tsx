@@ -102,7 +102,7 @@ function GemCard({ gem, onClick }: { gem: any, onClick: (gem: any) => void }) {
           <div style={{ position: "absolute", bottom: 10, left: 10, background: "rgba(0,0,0,0.5)", borderRadius: 20, padding: "3px 10px", color: "#fff", fontSize: 11, fontFamily: "sans-serif" }}>{gem.images.length} photos</div>
         )}
         {gem.badge
-          ? <span style={{ position: "absolute", top: 12, right: 12, background: BADGE_STYLES[gem.badge]?.bg || "#06402b", color: BADGE_STYLES[gem.badge]?.color || "#a8f0c8", fontSize: 11, fontFamily: "sans-serif", fontWeight: 600, padding: "3px 10px", borderRadius: 20, letterSpacing: 1, textTransform: "uppercase" }}>{gem.badge}</span>
+          ? <span style={{ position: "absolute", top: 12, right: 12, background: BADGE_STYLES[gem.badge as keyof typeof BADGE_STYLES]?.bg|| "#06402b", color: BADGE_STYLES[gem.badge as keyof typeof BADGE_STYLES]?.color || "#a8f0c8", fontSize: 11, fontFamily: "sans-serif", fontWeight: 600, padding: "3px 10px", borderRadius: 20, letterSpacing: 1, textTransform: "uppercase" }}>{gem.badge}</span>
           : gem.featured && <span style={{ position: "absolute", top: 12, right: 12, background: "rgba(168,240,200,0.15)", color: "#a8f0c8", fontSize: 11, fontFamily: "sans-serif", padding: "3px 10px", borderRadius: 20, letterSpacing: 1, border: "1px solid rgba(168,240,200,0.3)" }}>Featured</span>
         }
       </div>
@@ -127,7 +127,7 @@ function Modal({ gem, onClose }: { gem: any, onClose: () => void }) {
   const [activeImg, setActiveImg] = useState(0);
   const [showVideo, setShowVideo] = useState(false);
   if (!gem) return null;
-  const imgs = gem.images || [];
+  const imgs: string[] = gem.images || [];
   const hasVideo = !!gem.video;
   const colors = GEM_COLORS[gem.category as keyof typeof GEM_COLORS]|| GEM_COLORS.Emerald;
   const isYoutube = gem.video && (gem.video.includes("youtube.com") || gem.video.includes("youtu.be"));
@@ -213,15 +213,15 @@ function AdminPanel({ gems, onAdd, onUpdate, onRemove, onClose }: { gems: any[],
   const [tab, setTab] = useState("add");
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
-  const handleImageUpload = async (files) => {
+  const handleImageUpload = async (files: FileList) => {
     if (!files.length) return;
     setUploading(true); setMsg("Uploading images to Cloudinary…");
     try {
-      const urls = [];
+      const urls: string[] = [];
       for (const file of Array.from(files)) { const { url } = await uploadToCloudinary(file); urls.push(url); }
       setForm(f => ({ ...f, images: [...f.images, ...urls] }));
       setMsg(`${urls.length} image(s) uploaded ✓`);
-    } catch (e) { setMsg("Upload failed: " + e.message); }
+    } catch (e: any) { setMsg("Upload failed: " + e.message); }
     setUploading(false);
   };
 
