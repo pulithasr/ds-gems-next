@@ -68,7 +68,7 @@ function DiamondIcon() {
 }
 
 function GemPlaceholder({ category, size = 72 }: { category: string, size?: number }) {
-  const c = GEM_COLORS[category] || GEM_COLORS.Emerald;
+  const c = GEM_COLORS[category as keyof typeof GEM_COLORS] || GEM_COLORS.Emerald;
   return (
     <svg viewBox="0 0 72 72" width={size} height={size}>
       <polygon points="36,6 66,26 36,66 6,26" fill={c.light} fillOpacity="0.85" />
@@ -81,7 +81,7 @@ function GemPlaceholder({ category, size = 72 }: { category: string, size?: numb
 
 // ─── GEM CARD ─────────────────────────────────────────────────────────────────
 function GemCard({ gem, onClick }: { gem: any, onClick: (gem: any) => void }) {
-  const colors = GEM_COLORS[gem.category] || GEM_COLORS.Emerald;
+  const colors = GEM_COLORS[gem.category as keyof typeof GEM_COLORS]|| GEM_COLORS.Emerald;
   const hasImage = gem.images && gem.images.length > 0;
   return (
     <div onClick={() => onClick(gem)} style={{ background: "#fff", border: "1px solid #d8e8df", borderRadius: 16, overflow: "hidden", cursor: "pointer", transition: "box-shadow 0.2s, transform 0.2s", position: "relative", fontFamily: "'Cormorant Garamond', Georgia, serif" }}
@@ -129,7 +129,7 @@ function Modal({ gem, onClose }: { gem: any, onClose: () => void }) {
   if (!gem) return null;
   const imgs = gem.images || [];
   const hasVideo = !!gem.video;
-  const colors = GEM_COLORS[gem.category] || GEM_COLORS.Emerald;
+  const colors = GEM_COLORS[gem.category as keyof typeof GEM_COLORS]|| GEM_COLORS.Emerald;
   const isYoutube = gem.video && (gem.video.includes("youtube.com") || gem.video.includes("youtu.be"));
   const youtubeId = isYoutube ? gem.video.replace("https://youtu.be/", "").replace(/.*v=/, "").split("&")[0] : null;
 
