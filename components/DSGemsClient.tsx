@@ -225,7 +225,7 @@ function AdminPanel({ gems, onAdd, onUpdate, onRemove, onClose }: { gems: any[],
     setUploading(false);
   };
 
-  const handleVideoUpload = async (file) => {
+  const handleVideoUpload = async (file: File) => {
     if (!file) return;
     setUploading(true); setMsg("Uploading video to Cloudinary…");
     try { const { url } = await uploadToCloudinary(file); set("video", url); setMsg("Video uploaded ✓"); }
