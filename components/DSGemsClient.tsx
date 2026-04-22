@@ -67,7 +67,7 @@ function DiamondIcon() {
   );
 }
 
-function GemPlaceholder({ category, size = 72 }) {
+function GemPlaceholder({ category, size = 72 }: { category: string, size?: number }) {
   const c = GEM_COLORS[category] || GEM_COLORS.Emerald;
   return (
     <svg viewBox="0 0 72 72" width={size} height={size}>
@@ -80,7 +80,7 @@ function GemPlaceholder({ category, size = 72 }) {
 }
 
 // ─── GEM CARD ─────────────────────────────────────────────────────────────────
-function GemCard({ gem, onClick }) {
+function GemCard({ gem, onClick }: { gem: any, onClick: (gem: any) => void }) {
   const colors = GEM_COLORS[gem.category] || GEM_COLORS.Emerald;
   const hasImage = gem.images && gem.images.length > 0;
   return (
@@ -123,7 +123,7 @@ function GemCard({ gem, onClick }) {
 }
 
 // ─── DETAIL MODAL ─────────────────────────────────────────────────────────────
-function Modal({ gem, onClose }) {
+function Modal({ gem, onClose }: { gem: any, onClose: () => void }) {
   const [activeImg, setActiveImg] = useState(0);
   const [showVideo, setShowVideo] = useState(false);
   if (!gem) return null;
@@ -204,7 +204,7 @@ function Modal({ gem, onClose }) {
 }
 
 // ─── ADMIN PANEL ──────────────────────────────────────────────────────────────
-function AdminPanel({ gems, onAdd, onUpdate, onRemove, onClose }) {
+function AdminPanel({ gems, onAdd, onUpdate, onRemove, onClose }: { gems: any[], onAdd: (g: any) => void, onUpdate: (g: any) => void, onRemove: (id: string) => void, onClose: () => void }) {
   const emptyForm = { name: "", origin: "", weight: "", clarity: "", treatment: "", price: "", category: "Sapphire", description: "", badge: "", featured: false, images: [], video: "" };
   const [form, setForm] = useState(emptyForm);
   const [uploading, setUploading] = useState(false);
