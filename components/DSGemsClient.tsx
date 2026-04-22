@@ -16,7 +16,7 @@ const UPLOAD_PRESET = "ds_gems_unsigned";
 
 // ── ONLY CHANGE the bottom export: ──
 
-async function uploadToCloudinary(file) {
+async function uploadToCloudinary(file: File) {
   const formData = new FormData();
   formData.append("file", file);
   formData.append("upload_preset", UPLOAD_PRESET);
