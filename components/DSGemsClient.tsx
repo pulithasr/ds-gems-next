@@ -355,7 +355,7 @@ function AdminPanel({ gems, onAdd, onUpdate, onRemove, onClose }: { gems: any[],
               {gems.length === 0 && <div style={{ color: "#888", textAlign: "center", padding: 40 }}>No listings yet.</div>}
               {gems.map(g => (
                 <div key={g.id} style={{ display: "flex", gap: 14, alignItems: "center", padding: "12px 0", borderBottom: "1px solid #f0f7f3" }}>
-                  <div style={{ width: 52, height: 52, borderRadius: 10, overflow: "hidden", background: (GEM_COLORS[g.category]||GEM_COLORS.Emerald).bg, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <div style={{ width: 52, height: 52, borderRadius: 10, overflow: "hidden", background: (GEM_COLORS[g.category as keyof typeof GEM_COLORS]||GEM_COLORS.Emerald).bg, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
                     {g.images?.length > 0 ? <img src={g.images[0]} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <GemPlaceholder category={g.category} size={36} />}
                   </div>
                   <div style={{ flex: 1 }}>
@@ -446,7 +446,7 @@ export default function DSGemsClient({ initialGems = [], initialPage = "home" }:
         </div>
 
         {/* Desktop nav - hidden on mobile */}
-        <div style={{ display: "flex", gap: 20, alignItems: "center", "@media(maxWidth:600px)": { display: "none" } }}>
+        <div style={{ display: "flex", gap: 20, alignItems: "center" }}>
           <style>{`@media(max-width:640px){.ds-desktop-nav{display:none!important}}`}</style>
           <div className="ds-desktop-nav" style={{ display: "flex", gap: 20, alignItems: "center" }}>
             {["home","about","contact"].map(p => (
