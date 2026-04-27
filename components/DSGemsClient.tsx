@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { db, auth } from "@/lib/firebase";  // ← CHANGE import path
 import { signInWithEmailAndPassword, signOut } from "firebase/auth";
 import {
-  collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc,
+  collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, query, orderBy, serverTimestamp,
 } from "firebase/firestore";
 
 // ── CLOUDINARY CONFIG ── (keep as-is)
@@ -204,6 +204,9 @@ function Modal({ gem, onClose }: { gem: any, onClose: () => void }) {
 }
 
 // ─── ADMIN PANEL ──────────────────────────────────────────────────────────────
+
+
+
 function AdminPanel({ gems, onAdd, onUpdate, onRemove, onClose }: { gems: any[], onAdd: (g: any) => void, onUpdate: (g: any) => void, onRemove: (id: string) => void, onClose: () => void }) {
   const emptyForm: { name: string; origin: string; weight: string; clarity: string; treatment: string; price: string; category: string; description: string; badge: string; featured: boolean; images: string[]; video: string } = { name: "", origin: "", weight: "", clarity: "", treatment: "", price: "", category: "Sapphire", description: "", badge: "", featured: false, images: [], video: "" };
   const [form, setForm] = useState(emptyForm);
@@ -213,6 +216,77 @@ function AdminPanel({ gems, onAdd, onUpdate, onRemove, onClose }: { gems: any[],
   const [tab, setTab] = useState("add");
   const set = (k: string, v: any) => setForm(f => ({ ...f, [k]: v }));
 
+  // ── BLOG STATE ──
+  const emptyBlogForm = { title: "", slug: "", excerpt: "", content: "", category: "Education", tags: "", authorName: "DS Gems", readTime: "5 min read", coverImage: "", featured: false, published: false };
+  const [blogPosts, setBlogPosts] = useState<any[]>([]);
+  const [blogForm, setBlogForm] = useState(emptyBlogForm);
+  const [blogEditingId, setBlogEditingId] = useState<string | null>(null);
+  const [blogTab, setBlogTab] = useState<"list" | "editor">("list");
+  const [blogMsg, setBlogMsg] = useState("");
+  const [blogUploading, setBlogUploading] = useState(false);
+  const [blogSaving, setBlogSaving] = useState(false);
+  const setB = (k: string, v: any) => setBlogForm(f => ({ ...f, [k]: v }));
+
+  const BLOG_CATEGORIES = ["Education", "Buying Guide", "Gem Spotlight", "News", "Care & Maintenance"];
+
+  useEffect(() => {
+    const q = query(collection(db, "blog_posts"), orderBy("createdAt", "desc"));
+    const unsub = onSnapshot(q, snap => setBlogPosts(snap.docs.map(d => ({ ...d.data(), firestoreId: d.id }))));
+    return () => unsub();
+  }, []);
+
+  const handleBlogTitleChange = (val: string) => {
+    setB("title", val);
+    if (!blogEditingId) {
+      const slug = val.toLowerCase().replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-").replace(/-+/g, "-").slice(0, 60);
+      setB("slug", slug);
+    }
+  };
+
+  const handleBlogCoverUpload = async (file: File) => {
+    setBlogUploading(true); setBlogMsg("Uploading cover image…");
+    try { const { url } = await uploadToCloudinary(file); setB("coverImage", url); setBlogMsg("Cover image uploaded ✓"); }
+    catch (e: any) { setBlogMsg("Upload failed: " + e.message); }
+    setBlogUploading(false);
+  };
+
+  const handleBlogSave = async (publish = false) => {
+    if (!blogForm.title.trim() || !blogForm.slug.trim()) { setBlogMsg("Title and slug are required."); return; }
+    setBlogSaving(true);
+    try {
+      const data = {
+        ...blogForm,
+        tags: blogForm.tags.split(",").map((t: string) => t.trim()).filter(Boolean),
+        published: publish ? true : blogForm.published,
+        updatedAt: serverTimestamp(),
+      };
+      if (blogEditingId) {
+        await updateDoc(doc(db, "blog_posts", blogEditingId), data);
+        setBlogMsg(publish ? "Post published ✓" : "Post saved ✓");
+      } else {
+        await addDoc(collection(db, "blog_posts"), { ...data, createdAt: serverTimestamp() });
+        setBlogMsg(publish ? "Post published ✓" : "Draft saved ✓");
+      }
+      setBlogForm(emptyBlogForm);
+      setBlogEditingId(null);
+      setBlogTab("list");
+    } catch (e: any) { setBlogMsg("Error: " + e.message); }
+    setBlogSaving(false);
+  };
+
+  const startBlogEdit = (post: any) => {
+    setBlogForm({ ...emptyBlogForm, ...post, tags: Array.isArray(post.tags) ? post.tags.join(", ") : (post.tags || "") });
+    setBlogEditingId(post.firestoreId);
+    setBlogTab("editor");
+    setBlogMsg("");
+  };
+
+  const handleBlogDelete = async (id: string) => {
+    if (!confirm("Delete this post permanently?")) return;
+    await deleteDoc(doc(db, "blog_posts", id));
+  };
+
+  // ── GEM HANDLERS (unchanged) ──
   const handleImageUpload = async (files: FileList) => {
     if (!files.length) return;
     setUploading(true); setMsg("Uploading images to Cloudinary…");
@@ -240,13 +314,15 @@ function AdminPanel({ gems, onAdd, onUpdate, onRemove, onClose }: { gems: any[],
     setForm(emptyForm); setTab("manage");
   };
 
-  const startEdit = (g: any) => { setForm({ ...g }); setEditingId(g.firestoreId); setTab("add"); setMsg(""); };    
-  
-  const inp : React.CSSProperties = { fontFamily: "sans-serif", fontSize: 14, border: "1px solid #cce0d4", borderRadius: 8, padding: "8px 12px", width: "100%", color: "#1a3a2a", outline: "none", boxSizing: "border-box", background: "#f8fdfb" };
+  const startEdit = (g: any) => { setForm({ ...g }); setEditingId(g.firestoreId); setTab("add"); setMsg(""); };
+
+  const inp: React.CSSProperties = { fontFamily: "sans-serif", fontSize: 14, border: "1px solid #cce0d4", borderRadius: 8, padding: "8px 12px", width: "100%", color: "#1a3a2a", outline: "none", boxSizing: "border-box", background: "#f8fdfb" };
 
   return (
     <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.65)", zIndex: 2000, display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
       <div style={{ background: "#fff", borderRadius: 20, maxWidth: 720, width: "100%", maxHeight: "92vh", overflow: "auto", fontFamily: "sans-serif" }}>
+
+        {/* Header */}
         <div style={{ background: "#06402b", padding: "18px 28px", borderRadius: "20px 20px 0 0", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <span style={{ color: "#a8f0c8", fontSize: 18, fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 600 }}>Admin — Manage Listings</span>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -258,18 +334,30 @@ function AdminPanel({ gems, onAdd, onUpdate, onRemove, onClose }: { gems: any[],
           </div>
         </div>
 
-        {/* Tabs */}
-        <div style={{ display: "flex", borderBottom: "1px solid #e0ede7" }}>
-          {["add", "manage"].map(t => (
-            <button key={t} onClick={() => setTab(t)} style={{ flex: 1, padding: 13, background: tab === t ? "#f0f9f4" : "transparent", border: "none", borderBottom: tab === t ? "2px solid #06402b" : "none", color: tab === t ? "#06402b" : "#888", fontWeight: tab === t ? 600 : 400, cursor: "pointer", fontSize: 14 }}>
-              {t === "add" ? (editingId ? "Edit Gem" : "Add New Gem") : `Manage (${gems.length})`}
+        {/* Top-level tabs: Gems / Blog */}
+        <div style={{ display: "flex", borderBottom: "2px solid #e0ede7", background: "#f8fdfb" }}>
+          {[["gems", "💎 Gems"], ["blog", "📝 Blog"]].map(([t, label]) => (
+            <button key={t} onClick={() => setTab(t)} style={{ flex: 1, padding: "13px 0", background: "transparent", border: "none", borderBottom: tab === t ? "2px solid #06402b" : "none", color: tab === t ? "#06402b" : "#888", fontWeight: tab === t ? 700 : 400, cursor: "pointer", fontSize: 15, fontFamily: "sans-serif" }}>
+              {label}
             </button>
           ))}
         </div>
 
         <div style={{ padding: "22px 28px 28px" }}>
-          {tab === "add" && (
+
+          {/* ══════════════ GEMS SECTION ══════════════ */}
+          {tab === "gems" && (
             <>
+              {/* Gems sub-tabs */}
+              <div style={{ display: "flex", borderBottom: "1px solid #e0ede7", marginBottom: 20 }}>
+                {["add", "manage"].map(t => (
+                  <button key={t} onClick={() => { setMsg(""); /* reuse tab state via local */ }} style={{ flex: 1, padding: 11, background: "transparent", border: "none", color: "#06402b", cursor: "pointer", fontSize: 14 }}>
+                    {t === "add" ? (editingId ? "Edit Gem" : "Add New Gem") : `Manage (${gems.length})`}
+                  </button>
+                ))}
+              </div>
+
+              {/* Add/Edit gem form */}
               <div style={{ background: "#fffbe6", border: "1px solid #f0d060", borderRadius: 10, padding: "10px 14px", marginBottom: 16, fontSize: 13, color: "#806000" }}>
                 ⚙ Before uploading, set <strong>CLOUD_NAME</strong> and <strong>UPLOAD_PRESET</strong> at the top of DSGems.jsx with your Cloudinary credentials.
               </div>
@@ -347,34 +435,337 @@ function AdminPanel({ gems, onAdd, onUpdate, onRemove, onClose }: { gems: any[],
                 </button>
                 {editingId && <button onClick={() => { setEditingId(null); setForm(emptyForm); setMsg(""); }} style={{ background: "none", border: "1px solid #ccc", borderRadius: 20, padding: "10px 20px", fontSize: 14, cursor: "pointer", color: "#666" }}>Cancel</button>}
               </div>
+
+              {/* Manage gems list */}
+              <div style={{ marginTop: 28, borderTop: "1px solid #e0ede7", paddingTop: 20 }}>
+                <div style={{ fontSize: 13, fontWeight: 600, color: "#06402b", marginBottom: 12 }}>All Gem Listings ({gems.length})</div>
+                {gems.length === 0 && <div style={{ color: "#888", textAlign: "center", padding: 20 }}>No listings yet.</div>}
+                {gems.map(g => (
+                  <div key={g.id} style={{ display: "flex", gap: 14, alignItems: "center", padding: "12px 0", borderBottom: "1px solid #f0f7f3" }}>
+                    <div style={{ width: 52, height: 52, borderRadius: 10, overflow: "hidden", background: (GEM_COLORS[g.category as keyof typeof GEM_COLORS]||GEM_COLORS.Emerald).bg, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      {g.images?.length > 0 ? <img src={g.images[0]} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <GemPlaceholder category={g.category} size={36} />}
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: 14, fontWeight: 600, color: "#1a3a2a" }}>{g.name}</div>
+                      <div style={{ fontSize: 12, color: "#888" }}>{g.category} · {g.price} · {g.images?.length||0} photo(s){g.video ? " · video ✓" : ""}</div>
+                    </div>
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <button onClick={() => startEdit(g)} style={{ background: "none", border: "1px solid #06402b", borderRadius: 20, padding: "5px 14px", color: "#06402b", fontSize: 12, cursor: "pointer" }}>Edit</button>
+                      <button onClick={() => onRemove(g.firestoreId)} style={{ background: "none", border: "1px solid #e0a0a0", borderRadius: 20, padding: "5px 14px", color: "#c04040", fontSize: 12, cursor: "pointer" }}>Remove</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </>
           )}
 
-          {tab === "manage" && (
-            <div>
-              {gems.length === 0 && <div style={{ color: "#888", textAlign: "center", padding: 40 }}>No listings yet.</div>}
-              {gems.map(g => (
-                <div key={g.id} style={{ display: "flex", gap: 14, alignItems: "center", padding: "12px 0", borderBottom: "1px solid #f0f7f3" }}>
-                  <div style={{ width: 52, height: 52, borderRadius: 10, overflow: "hidden", background: (GEM_COLORS[g.category as keyof typeof GEM_COLORS]||GEM_COLORS.Emerald).bg, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    {g.images?.length > 0 ? <img src={g.images[0]} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <GemPlaceholder category={g.category} size={36} />}
+          {/* ══════════════ BLOG SECTION ══════════════ */}
+          {tab === "blog" && (
+            <>
+              {/* Blog sub-tabs */}
+              <div style={{ display: "flex", gap: 10, marginBottom: 20 }}>
+                <button onClick={() => { setBlogTab("list"); setBlogMsg(""); }} style={{ background: blogTab === "list" ? "#06402b" : "#fff", color: blogTab === "list" ? "#a8f0c8" : "#06402b", border: "1px solid #06402b", borderRadius: 20, padding: "7px 20px", fontSize: 13, cursor: "pointer" }}>All Posts ({blogPosts.length})</button>
+                <button onClick={() => { setBlogTab("editor"); setBlogEditingId(null); setBlogForm(emptyBlogForm); setBlogMsg(""); }} style={{ background: blogTab === "editor" ? "#06402b" : "#fff", color: blogTab === "editor" ? "#a8f0c8" : "#06402b", border: "1px solid #06402b", borderRadius: 20, padding: "7px 20px", fontSize: 13, cursor: "pointer" }}>
+                  {blogEditingId ? "Editing Post" : "+ New Post"}
+                </button>
+              </div>
+
+              {/* Blog post list */}
+              {blogTab === "list" && (
+                <div>
+                  {blogPosts.length === 0 && <div style={{ color: "#888", textAlign: "center", padding: 40 }}>No blog posts yet. Create your first one!</div>}
+                  {blogPosts.map(post => (
+                    <div key={post.firestoreId} style={{ display: "flex", gap: 14, alignItems: "center", padding: "12px 0", borderBottom: "1px solid #f0f7f3" }}>
+                      <div style={{ width: 52, height: 52, borderRadius: 10, overflow: "hidden", background: "#06402b", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        {post.coverImage ? <img src={post.coverImage} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <span style={{ fontSize: 22 }}>📝</span>}
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 14, fontWeight: 600, color: "#1a3a2a", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{post.title}</div>
+                        <div style={{ fontSize: 12, color: "#888", display: "flex", gap: 10 }}>
+                          <span>{post.category}</span>
+                          <span style={{ color: post.published ? "#06402b" : "#c08000", fontWeight: 600 }}>{post.published ? "● Published" : "○ Draft"}</span>
+                          {post.featured && <span style={{ color: "#06402b" }}>★ Featured</span>}
+                        </div>
+                      </div>
+                      <div style={{ display: "flex", gap: 8 }}>
+                        <button onClick={() => startBlogEdit(post)} style={{ background: "none", border: "1px solid #06402b", borderRadius: 20, padding: "5px 14px", color: "#06402b", fontSize: 12, cursor: "pointer" }}>Edit</button>
+                        <button onClick={() => handleBlogDelete(post.firestoreId)} style={{ background: "none", border: "1px solid #e0a0a0", borderRadius: 20, padding: "5px 14px", color: "#c04040", fontSize: 12, cursor: "pointer" }}>Delete</button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Blog editor */}
+              {blogTab === "editor" && (
+                <div>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }}>
+                    <div>
+                      <div style={{ fontSize: 12, color: "#666", marginBottom: 4 }}>Title *</div>
+                      <input style={inp} value={blogForm.title} onChange={e => handleBlogTitleChange(e.target.value)} placeholder="Post title" />
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 12, color: "#666", marginBottom: 4 }}>URL Slug *</div>
+                      <input style={inp} value={blogForm.slug} onChange={e => setB("slug", e.target.value)} placeholder="url-friendly-slug" />
+                    </div>
                   </div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 14, fontWeight: 600, color: "#1a3a2a" }}>{g.name}</div>
-                    <div style={{ fontSize: 12, color: "#888" }}>{g.category} · {g.price} · {g.images?.length||0} photo(s){g.video ? " · video ✓" : ""}</div>
+
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 10 }}>
+                    <div>
+                      <div style={{ fontSize: 12, color: "#666", marginBottom: 4 }}>Category</div>
+                      <select style={inp} value={blogForm.category} onChange={e => setB("category", e.target.value)}>
+                        {BLOG_CATEGORIES.map(c => <option key={c}>{c}</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 12, color: "#666", marginBottom: 4 }}>Author</div>
+                      <input style={inp} value={blogForm.authorName} onChange={e => setB("authorName", e.target.value)} placeholder="DS Gems" />
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 12, color: "#666", marginBottom: 4 }}>Read Time</div>
+                      <input style={inp} value={blogForm.readTime} onChange={e => setB("readTime", e.target.value)} placeholder="5 min read" />
+                    </div>
                   </div>
-                  <div style={{ display: "flex", gap: 8 }}>
-                    <button onClick={() => startEdit(g)} style={{ background: "none", border: "1px solid #06402b", borderRadius: 20, padding: "5px 14px", color: "#06402b", fontSize: 12, cursor: "pointer" }}>Edit</button>
-                    <button onClick={() => onRemove(g.firestoreId)} style={{ background: "none", border: "1px solid #e0a0a0", borderRadius: 20, padding: "5px 14px", color: "#c04040", fontSize: 12, cursor: "pointer" }}>Remove</button>
+
+                  <div style={{ marginBottom: 10 }}>
+                    <div style={{ fontSize: 12, color: "#666", marginBottom: 4 }}>Excerpt (shown in listings)</div>
+                    <textarea style={{ ...inp, height: 60, resize: "vertical" }} value={blogForm.excerpt} onChange={e => setB("excerpt", e.target.value)} placeholder="Short summary of the post…" />
+                  </div>
+
+                  {/* Cover image */}
+                  <div style={{ background: "#f8fdfb", border: "1px solid #cce0d4", borderRadius: 12, padding: "14px 16px", marginBottom: 10 }}>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: "#06402b", marginBottom: 10 }}>Cover Image</div>
+                    <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                      <label style={{ background: "#06402b", color: "#a8f0c8", borderRadius: 20, padding: "7px 16px", fontSize: 13, cursor: "pointer", whiteSpace: "nowrap" }}>
+                        Upload
+                        <input type="file" accept="image/*" style={{ display: "none" }} onChange={e => e.target.files?.[0] && handleBlogCoverUpload(e.target.files[0])} disabled={blogUploading} />
+                      </label>
+                      <input style={{ ...inp, flex: 1 }} placeholder="Or paste image URL" value={blogForm.coverImage} onChange={e => setB("coverImage", e.target.value)} />
+                      {blogForm.coverImage && <button onClick={() => setB("coverImage", "")} style={{ background: "none", border: "1px solid #e04040", borderRadius: 20, padding: "6px 12px", color: "#e04040", fontSize: 12, cursor: "pointer" }}>Remove</button>}
+                    </div>
+                    {blogForm.coverImage && <img src={blogForm.coverImage} alt="" style={{ marginTop: 8, height: 80, borderRadius: 8, objectFit: "cover" }} />}
+                  </div>
+
+                  {/* Content */}
+                  <div style={{ marginBottom: 10 }}>
+                    <div style={{ fontSize: 12, color: "#666", marginBottom: 4 }}>Content</div>
+                    <div style={{ fontSize: 11, color: "#aaa", marginBottom: 6 }}>Use blank lines between paragraphs. Start with <code style={{ background: "#f0f9f4", padding: "1px 4px", borderRadius: 3 }}># </code> for headings, <code style={{ background: "#f0f9f4", padding: "1px 4px", borderRadius: 3 }}>- </code> for bullet points.</div>
+                    <textarea style={{ ...inp, height: 260, resize: "vertical", lineHeight: 1.65 }} value={blogForm.content} onChange={e => setB("content", e.target.value)} placeholder={"## Introduction\n\nWrite your post here…\n\n## Section\n\nMore content…\n\n- Bullet one\n- Bullet two"} />
+                  </div>
+
+                  <div style={{ marginBottom: 14 }}>
+                    <div style={{ fontSize: 12, color: "#666", marginBottom: 4 }}>Tags (comma separated)</div>
+                    <input style={inp} value={blogForm.tags} onChange={e => setB("tags", e.target.value)} placeholder="sapphire, ceylon, buying guide" />
+                  </div>
+
+                  <div style={{ display: "flex", gap: 20, marginBottom: 16 }}>
+                    <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#444", cursor: "pointer" }}>
+                      <input type="checkbox" checked={blogForm.featured} onChange={e => setB("featured", e.target.checked)} />
+                      Featured post
+                    </label>
+                    <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#444", cursor: "pointer" }}>
+                      <input type="checkbox" checked={blogForm.published} onChange={e => setB("published", e.target.checked)} />
+                      Published
+                    </label>
+                  </div>
+
+                  {blogUploading && <div style={{ fontSize: 13, color: "#06402b", marginBottom: 8 }}>Uploading…</div>}
+                  {blogMsg && <div style={{ fontSize: 13, color: blogMsg.includes("Error") || blogMsg.includes("required") || blogMsg.includes("failed") ? "#e04040" : "#06402b", marginBottom: 10 }}>{blogMsg}</div>}
+
+                  <div style={{ display: "flex", gap: 10 }}>
+                    <button onClick={() => handleBlogSave(false)} disabled={blogSaving || blogUploading} style={{ background: "#fff", border: "1px solid #06402b", borderRadius: 20, padding: "10px 22px", fontSize: 14, color: "#06402b", cursor: "pointer" }}>
+                      {blogSaving ? "Saving…" : "Save Draft"}
+                    </button>
+                    <button onClick={() => handleBlogSave(true)} disabled={blogSaving || blogUploading} style={{ background: "#06402b", border: "none", borderRadius: 20, padding: "10px 24px", fontSize: 14, color: "#a8f0c8", cursor: "pointer" }}>
+                      {blogSaving ? "Publishing…" : "Publish Post"}
+                    </button>
+                    {blogEditingId && (
+                      <button onClick={() => { setBlogEditingId(null); setBlogForm(emptyBlogForm); setBlogTab("list"); setBlogMsg(""); }}
+                        style={{ background: "none", border: "1px solid #ccc", borderRadius: 20, padding: "10px 18px", fontSize: 14, color: "#888", cursor: "pointer" }}>Cancel</button>
+                    )}
                   </div>
                 </div>
-              ))}
-            </div>
+              )}
+            </>
           )}
+
         </div>
       </div>
     </div>
   );
 }
+
+// function AdminPanel({ gems, onAdd, onUpdate, onRemove, onClose }: { gems: any[], onAdd: (g: any) => void, onUpdate: (g: any) => void, onRemove: (id: string) => void, onClose: () => void }) {
+//   const emptyForm: { name: string; origin: string; weight: string; clarity: string; treatment: string; price: string; category: string; description: string; badge: string; featured: boolean; images: string[]; video: string } = { name: "", origin: "", weight: "", clarity: "", treatment: "", price: "", category: "Sapphire", description: "", badge: "", featured: false, images: [], video: "" };
+//   const [form, setForm] = useState(emptyForm);
+//   const [uploading, setUploading] = useState(false);
+//   const [msg, setMsg] = useState("");
+//   const [editingId, setEditingId] = useState(null);
+//   const [tab, setTab] = useState("add");
+//   const set = (k: string, v: any) => setForm(f => ({ ...f, [k]: v }));
+
+//   const handleImageUpload = async (files: FileList) => {
+//     if (!files.length) return;
+//     setUploading(true); setMsg("Uploading images to Cloudinary…");
+//     try {
+//       const urls: string[] = [];
+//       for (const file of Array.from(files)) { const { url } = await uploadToCloudinary(file); urls.push(url); }
+//       setForm(f => ({ ...f, images: [...f.images, ...urls] }));
+//       setMsg(`${urls.length} image(s) uploaded ✓`);
+//     } catch (e: any) { setMsg("Upload failed: " + e.message); }
+//     setUploading(false);
+//   };
+
+//   const handleVideoUpload = async (file: File) => {
+//     if (!file) return;
+//     setUploading(true); setMsg("Uploading video to Cloudinary…");
+//     try { const { url } = await uploadToCloudinary(file); set("video", url); setMsg("Video uploaded ✓"); }
+//     catch (e: any) { setMsg("Video upload failed: " + e.message); }
+//     setUploading(false);
+//   };
+
+//   const handleSubmit = () => {
+//     if (!form.name || !form.price) { setMsg("Name and Price are required."); return; }
+//     if (editingId) { onUpdate({ ...form, firestoreId: editingId }); setEditingId(null); setMsg("Listing updated ✓"); }
+//     else { onAdd({ ...form, id: Date.now() }); setMsg("Gem added ✓"); }
+//     setForm(emptyForm); setTab("manage");
+//   };
+
+//   const startEdit = (g: any) => { setForm({ ...g }); setEditingId(g.firestoreId); setTab("add"); setMsg(""); };    
+  
+//   const inp : React.CSSProperties = { fontFamily: "sans-serif", fontSize: 14, border: "1px solid #cce0d4", borderRadius: 8, padding: "8px 12px", width: "100%", color: "#1a3a2a", outline: "none", boxSizing: "border-box", background: "#f8fdfb" };
+
+//   return (
+//     <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.65)", zIndex: 2000, display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
+//       <div style={{ background: "#fff", borderRadius: 20, maxWidth: 720, width: "100%", maxHeight: "92vh", overflow: "auto", fontFamily: "sans-serif" }}>
+//         <div style={{ background: "#06402b", padding: "18px 28px", borderRadius: "20px 20px 0 0", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+//           <span style={{ color: "#a8f0c8", fontSize: 18, fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 600 }}>Admin — Manage Listings</span>
+//           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+//             <button onClick={async () => { await signOut(auth); onClose(); }}
+//               style={{ background: "none", border: "1px solid rgba(168,240,200,0.4)", borderRadius: 20, padding: "5px 14px", color: "#a8f0c8", fontFamily: "sans-serif", fontSize: 12, cursor: "pointer" }}>
+//               Sign out
+//             </button>
+//             <button onClick={onClose} style={{ background: "none", border: "none", color: "#a8f0c8", fontSize: 24, cursor: "pointer" }}>×</button>
+//           </div>
+//         </div>
+
+//         {/* Tabs */}
+//         <div style={{ display: "flex", borderBottom: "1px solid #e0ede7" }}>
+//           {["add", "manage"].map(t => (
+//             <button key={t} onClick={() => setTab(t)} style={{ flex: 1, padding: 13, background: tab === t ? "#f0f9f4" : "transparent", border: "none", borderBottom: tab === t ? "2px solid #06402b" : "none", color: tab === t ? "#06402b" : "#888", fontWeight: tab === t ? 600 : 400, cursor: "pointer", fontSize: 14 }}>
+//               {t === "add" ? (editingId ? "Edit Gem" : "Add New Gem") : `Manage (${gems.length})`}
+//             </button>
+//           ))}
+//         </div>
+
+//         <div style={{ padding: "22px 28px 28px" }}>
+//           {tab === "add" && (
+//             <>
+//               <div style={{ background: "#fffbe6", border: "1px solid #f0d060", borderRadius: 10, padding: "10px 14px", marginBottom: 16, fontSize: 13, color: "#806000" }}>
+//                 ⚙ Before uploading, set <strong>CLOUD_NAME</strong> and <strong>UPLOAD_PRESET</strong> at the top of DSGems.jsx with your Cloudinary credentials.
+//               </div>
+
+//               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }}>
+//                 {[["name","Gem Name *"],["origin","Origin"],["weight","Weight (e.g. 2.5 ct)"],["clarity","Clarity"],["treatment","Treatment"],["price","Price * (e.g. USD 3,200)"]].map(([k,lbl]) => (
+//                   <div key={k}><div style={{ fontSize: 12, color: "#666", marginBottom: 4 }}>{lbl}</div><input style={inp} value={(form as any)[k]} onChange={e => set(k, e.target.value)} placeholder={lbl} /></div>
+//                 ))}
+//               </div>
+
+//               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }}>
+//                 <div><div style={{ fontSize: 12, color: "#666", marginBottom: 4 }}>Category</div>
+//                   <select style={inp} value={form.category} onChange={e => set("category", e.target.value)}>
+//                     {["Sapphire","Ruby","Emerald","Alexandrite","Tanzanite"].map(c => <option key={c}>{c}</option>)}
+//                   </select></div>
+//                 <div><div style={{ fontSize: 12, color: "#666", marginBottom: 4 }}>Badge</div>
+//                   <select style={inp} value={form.badge} onChange={e => set("badge", e.target.value)}>
+//                     <option value="">None</option><option value="New Arrival">New Arrival</option><option value="Rare">Rare</option><option value="Sold">Sold</option>
+//                   </select></div>
+//               </div>
+
+//               <div style={{ marginBottom: 12 }}>
+//                 <div style={{ fontSize: 12, color: "#666", marginBottom: 4 }}>Description</div>
+//                 <textarea style={{ ...inp, height: 70, resize: "vertical" }} value={form.description} onChange={e => set("description", e.target.value)} placeholder="Describe the gem…" />
+//               </div>
+
+//               {/* Images */}
+//               <div style={{ background: "#f8fdfb", border: "1px solid #cce0d4", borderRadius: 12, padding: "14px 16px", marginBottom: 12 }}>
+//                 <div style={{ fontSize: 13, fontWeight: 600, color: "#06402b", marginBottom: 10 }}>Photos (up to 5)</div>
+//                 <div style={{ display: "flex", gap: 8, marginBottom: form.images.length ? 10 : 0 }}>
+//                   <label style={{ background: form.images.length >= 5 ? "#aaa" : "#06402b", color: "#a8f0c8", borderRadius: 20, padding: "7px 16px", fontSize: 13, cursor: form.images.length >= 5 ? "not-allowed" : "pointer", whiteSpace: "nowrap" }}>
+//                     Upload Photos
+//                     <input type="file" accept="image/*" multiple style={{ display: "none" }} onChange={e => e.target.files && handleImageUpload(e.target.files)} disabled={uploading || form.images.length >= 5} />
+//                   </label>
+//                   <input style={{ ...inp, flex: 1 }} placeholder="Or paste Cloudinary URL + press Enter"
+//                     onKeyDown={e => { const t = e.target as HTMLInputElement; if (e.key === "Enter" && t.value.trim() && form.images.length < 5) { set("images", [...form.images, t.value.trim()]); t.value = ""; } }} />
+//                 </div>
+//                 {form.images.length > 0 && (
+//                   <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+//                     {form.images.map((url, i) => (
+//                       <div key={i} style={{ position: "relative" }}>
+//                         <img src={url} alt="" style={{ width: 64, height: 64, objectFit: "cover", borderRadius: 8, border: "1px solid #cce0d4" }} />
+//                         <button onClick={() => set("images", form.images.filter((_,j)=>j!==i))} style={{ position: "absolute", top: -6, right: -6, background: "#e04040", border: "none", color: "#fff", borderRadius: "50%", width: 18, height: 18, fontSize: 11, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: 0 }}>×</button>
+//                         {i === 0 && <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, background: "rgba(6,64,43,0.75)", color: "#a8f0c8", fontSize: 9, textAlign: "center", borderRadius: "0 0 8px 8px" }}>COVER</div>}
+//                       </div>
+//                     ))}
+//                   </div>
+//                 )}
+//               </div>
+
+//               {/* Video */}
+//               <div style={{ background: "#f8fdfb", border: "1px solid #cce0d4", borderRadius: 12, padding: "14px 16px", marginBottom: 16 }}>
+//                 <div style={{ fontSize: 13, fontWeight: 600, color: "#06402b", marginBottom: 10 }}>Video</div>
+//                 <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+//                   <label style={{ background: "#06402b", color: "#a8f0c8", borderRadius: 20, padding: "7px 16px", fontSize: 13, cursor: "pointer", whiteSpace: "nowrap" }}>
+//                     {form.video ? "Replace" : "Upload Video"}
+//                     <input type="file" accept="video/*" style={{ display: "none" }} onChange={e => e.target.files && handleVideoUpload(e.target.files[0])} disabled={uploading} />
+//                   </label>
+//                   <input style={{ ...inp, flex: 1 }} placeholder="Or paste YouTube or Cloudinary video URL" value={form.video} onChange={e => set("video", e.target.value)} />
+//                   {form.video && <button onClick={() => set("video", "")} style={{ background: "none", border: "1px solid #e04040", borderRadius: 20, padding: "6px 12px", color: "#e04040", fontSize: 12, cursor: "pointer" }}>Remove</button>}
+//                 </div>
+//                 {form.video && <div style={{ fontSize: 12, color: "#06402b", marginTop: 6 }}>✓ Video ready</div>}
+//               </div>
+
+//               {uploading && <div style={{ fontSize: 13, color: "#06402b", marginBottom: 8 }}>Uploading…</div>}
+//               {msg && <div style={{ fontSize: 13, color: msg.includes("failed")||msg.includes("required") ? "#e04040" : "#06402b", marginBottom: 10 }}>{msg}</div>}
+
+//               <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 18 }}>
+//                 <input type="checkbox" id="feat" checked={!!form.featured} onChange={e => set("featured", e.target.checked)} />
+//                 <label htmlFor="feat" style={{ fontSize: 13, color: "#444" }}>Mark as featured gem</label>
+//               </div>
+//               <div style={{ display: "flex", gap: 10 }}>
+//                 <button onClick={handleSubmit} disabled={uploading} style={{ background: "#06402b", color: "#a8f0c8", border: "none", borderRadius: 20, padding: "10px 28px", fontSize: 14, cursor: "pointer" }}>
+//                   {editingId ? "Save Changes" : "Add Gem Listing"}
+//                 </button>
+//                 {editingId && <button onClick={() => { setEditingId(null); setForm(emptyForm); setMsg(""); }} style={{ background: "none", border: "1px solid #ccc", borderRadius: 20, padding: "10px 20px", fontSize: 14, cursor: "pointer", color: "#666" }}>Cancel</button>}
+//               </div>
+//             </>
+//           )}
+
+//           {tab === "manage" && (
+//             <div>
+//               {gems.length === 0 && <div style={{ color: "#888", textAlign: "center", padding: 40 }}>No listings yet.</div>}
+//               {gems.map(g => (
+//                 <div key={g.id} style={{ display: "flex", gap: 14, alignItems: "center", padding: "12px 0", borderBottom: "1px solid #f0f7f3" }}>
+//                   <div style={{ width: 52, height: 52, borderRadius: 10, overflow: "hidden", background: (GEM_COLORS[g.category as keyof typeof GEM_COLORS]||GEM_COLORS.Emerald).bg, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+//                     {g.images?.length > 0 ? <img src={g.images[0]} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <GemPlaceholder category={g.category} size={36} />}
+//                   </div>
+//                   <div style={{ flex: 1 }}>
+//                     <div style={{ fontSize: 14, fontWeight: 600, color: "#1a3a2a" }}>{g.name}</div>
+//                     <div style={{ fontSize: 12, color: "#888" }}>{g.category} · {g.price} · {g.images?.length||0} photo(s){g.video ? " · video ✓" : ""}</div>
+//                   </div>
+//                   <div style={{ display: "flex", gap: 8 }}>
+//                     <button onClick={() => startEdit(g)} style={{ background: "none", border: "1px solid #06402b", borderRadius: 20, padding: "5px 14px", color: "#06402b", fontSize: 12, cursor: "pointer" }}>Edit</button>
+//                     <button onClick={() => onRemove(g.firestoreId)} style={{ background: "none", border: "1px solid #e0a0a0", borderRadius: 20, padding: "5px 14px", color: "#c04040", fontSize: 12, cursor: "pointer" }}>Remove</button>
+//                   </div>
+//                 </div>
+//               ))}
+//             </div>
+//           )}
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
 
 // ─── MAIN APP ─────────────────────────────────────────────────────────────────
 export default function DSGemsClient({ initialGems = [], initialPage = "home" }: { initialGems: any[], initialPage: string }) {
@@ -449,7 +840,7 @@ export default function DSGemsClient({ initialGems = [], initialPage = "home" }:
         <div style={{ display: "flex", gap: 20, alignItems: "center" }}>
           <style>{`@media(max-width:640px){.ds-desktop-nav{display:none!important}}`}</style>
           <div className="ds-desktop-nav" style={{ display: "flex", gap: 20, alignItems: "center" }}>
-            {["home","about","contact"].map(p => (
+            {["home","about","blog","contact"].map(p => (
               <button key={p} onClick={() => setPage(p)} style={{ background: "none", border: "none", color: page===p ? "#a8f0c8" : "rgba(168,240,200,0.55)", fontSize: 15, cursor: "pointer", textTransform: "capitalize", fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 600, letterSpacing: 1, borderBottom: page===p ? "1.5px solid #a8f0c8" : "none", paddingBottom: 2 }}>{p}</button>
             ))}
             <button onClick={() => setAdminPrompt(true)} style={{ background: "rgba(168,240,200,0.12)", border: "1px solid rgba(168,240,200,0.3)", borderRadius: 20, padding: "6px 16px", color: "#a8f0c8", fontFamily: "sans-serif", fontSize: 12, cursor: "pointer", letterSpacing: 1 }}>Admin</button>
@@ -467,7 +858,7 @@ export default function DSGemsClient({ initialGems = [], initialPage = "home" }:
         {/* Mobile dropdown menu */}
         {menuOpen && (
           <div style={{ position: "absolute", top: 64, left: 0, right: 0, background: "#06402b", display: "flex", flexDirection: "column", padding: "12px 20px 20px", gap: 4, boxShadow: "0 8px 20px rgba(0,0,0,0.3)", zIndex: 99 }}>
-            {["home","about","contact"].map(p => (
+            {["home","about","blog","contact"].map(p => (
               <button key={p} onClick={() => { setPage(p); setMenuOpen(false); }} style={{ background: "none", border: "none", color: page===p ? "#a8f0c8" : "rgba(168,240,200,0.7)", fontSize: 18, cursor: "pointer", textTransform: "capitalize", fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 600, letterSpacing: 1, padding: "10px 0", textAlign: "left", borderBottom: "1px solid rgba(168,240,200,0.1)" }}>{p}</button>
             ))}
             <button onClick={() => { setAdminPrompt(true); setMenuOpen(false); }} style={{ background: "rgba(168,240,200,0.12)", border: "1px solid rgba(168,240,200,0.3)", borderRadius: 20, padding: "10px 16px", color: "#a8f0c8", fontFamily: "sans-serif", fontSize: 14, cursor: "pointer", letterSpacing: 1, marginTop: 8 }}>Admin</button>
