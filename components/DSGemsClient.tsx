@@ -32,14 +32,14 @@ async function uploadToCloudinary(file: File) {
 }
 
 // ─── SAMPLE DATA ──────────────────────────────────────────────────────────────
-const INITIAL_GEMS = [
-  { id: 1, name: "Ceylon Blue Sapphire", origin: "Sri Lanka", weight: "4.82 ct", clarity: "Eye Clean", treatment: "Heat Only", price: "USD 3,200", category: "Sapphire", featured: true, description: "Vivid cornflower blue with excellent saturation. GIA certified. Ideal cut with outstanding brilliance.", badge: "New Arrival", images: [], video: "" },
-  { id: 2, name: "Burmese Ruby", origin: "Myanmar", weight: "2.15 ct", clarity: "Slightly Included", treatment: "No Heat", price: "USD 8,500", category: "Ruby", featured: true, description: "Pigeon blood red with strong fluorescence. AGL certified. Unheated and untreated – museum quality.", badge: "Rare", images: [], video: "" },
-  { id: 3, name: "Colombian Emerald", origin: "Colombia", weight: "3.60 ct", clarity: "Eye Clean", treatment: "Minor Oil", price: "USD 5,100", category: "Emerald", featured: false, description: "Intense vivid green with characteristic jardin. Certified by Gübelin. Exceptional transparency.", badge: "", images: [], video: "" },
-  { id: 4, name: "Padparadscha Sapphire", origin: "Sri Lanka", weight: "1.98 ct", clarity: "Eye Clean", treatment: "No Heat", price: "USD 7,200", category: "Sapphire", featured: true, description: "Rare lotus pink-orange hue. GRS certified padparadscha. Unheated, extremely collectible.", badge: "Sold", images: [], video: "" },
-  { id: 5, name: "Alexandrite", origin: "Brazil", weight: "1.42 ct", clarity: "Eye Clean", treatment: "No Treatment", price: "USD 4,900", category: "Alexandrite", featured: false, description: "Strong color change from teal green to purplish red. GIA certified. Exceptional shift under incandescent light.", badge: "New Arrival", images: [], video: "" },
-  { id: 6, name: "Tanzanite", origin: "Tanzania", weight: "6.74 ct", clarity: "Eye Clean", treatment: "Heat Only", price: "USD 2,400", category: "Tanzanite", featured: false, description: "Deep velvety violet-blue with strong trichroism. AAA grade with excellent cut and polish.", badge: "", images: [], video: "" },
-];
+// const INITIAL_GEMS = [
+//   { id: 1, name: "Ceylon Blue Sapphire", origin: "Sri Lanka", weight: "4.82 ct", clarity: "Eye Clean", treatment: "Heat Only", price: "USD 3,200", category: "Sapphire", featured: true, description: "Vivid cornflower blue with excellent saturation. GIA certified. Ideal cut with outstanding brilliance.", badge: "New Arrival", images: [], video: "" },
+//   { id: 2, name: "Burmese Ruby", origin: "Myanmar", weight: "2.15 ct", clarity: "Slightly Included", treatment: "No Heat", price: "USD 8,500", category: "Ruby", featured: true, description: "Pigeon blood red with strong fluorescence. AGL certified. Unheated and untreated – museum quality.", badge: "Rare", images: [], video: "" },
+//   { id: 3, name: "Colombian Emerald", origin: "Colombia", weight: "3.60 ct", clarity: "Eye Clean", treatment: "Minor Oil", price: "USD 5,100", category: "Emerald", featured: false, description: "Intense vivid green with characteristic jardin. Certified by Gübelin. Exceptional transparency.", badge: "", images: [], video: "" },
+//   { id: 4, name: "Padparadscha Sapphire", origin: "Sri Lanka", weight: "1.98 ct", clarity: "Eye Clean", treatment: "No Heat", price: "USD 7,200", category: "Sapphire", featured: true, description: "Rare lotus pink-orange hue. GRS certified padparadscha. Unheated, extremely collectible.", badge: "Sold", images: [], video: "" },
+//   { id: 5, name: "Alexandrite", origin: "Brazil", weight: "1.42 ct", clarity: "Eye Clean", treatment: "No Treatment", price: "USD 4,900", category: "Alexandrite", featured: false, description: "Strong color change from teal green to purplish red. GIA certified. Exceptional shift under incandescent light.", badge: "New Arrival", images: [], video: "" },
+//   { id: 6, name: "Tanzanite", origin: "Tanzania", weight: "6.74 ct", clarity: "Eye Clean", treatment: "Heat Only", price: "USD 2,400", category: "Tanzanite", featured: false, description: "Deep velvety violet-blue with strong trichroism. AAA grade with excellent cut and polish.", badge: "", images: [], video: "" },
+// ];
 
 const CATEGORIES = ["All", "Sapphire", "Ruby", "Emerald", "Alexandrite", "Tanzanite"];
 
@@ -441,7 +441,7 @@ function AdminPanel({ gems, onAdd, onUpdate, onRemove, onClose }: { gems: any[],
                 <div style={{ fontSize: 13, fontWeight: 600, color: "#06402b", marginBottom: 12 }}>All Gem Listings ({gems.length})</div>
                 {gems.length === 0 && <div style={{ color: "#888", textAlign: "center", padding: 20 }}>No listings yet.</div>}
                 {gems.map(g => (
-                  <div key={g.id} style={{ display: "flex", gap: 14, alignItems: "center", padding: "12px 0", borderBottom: "1px solid #f0f7f3" }}>
+                  <div key={g.firestoreId} style={{ display: "flex", gap: 14, alignItems: "center", padding: "12px 0", borderBottom: "1px solid #f0f7f3" }}>
                     <div style={{ width: 52, height: 52, borderRadius: 10, overflow: "hidden", background: (GEM_COLORS[g.category as keyof typeof GEM_COLORS]||GEM_COLORS.Emerald).bg, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
                       {g.images?.length > 0 ? <img src={g.images[0]} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <GemPlaceholder category={g.category} size={36} />}
                     </div>
@@ -772,18 +772,21 @@ export default function DSGemsClient({ initialGems = [], initialPage = "home" }:
   const [gems, setGems] = useState(initialGems);
 
   useEffect(() => {
-    const unsub = onSnapshot(collection(db, "gems"), async (snap) => {
-      if (snap.empty) {
-        const seeded = [];
-        for (const g of INITIAL_GEMS) {
-          const docRef = await addDoc(collection(db, "gems"), { ...g, firestoreId: "" });
-          await updateDoc(docRef, { firestoreId: docRef.id });
-          seeded.push({ ...g, firestoreId: docRef.id });
-        }
-        setGems(seeded);
-      } else {
-        setGems(snap.docs.map(d => ({ ...d.data(), firestoreId: d.id })));
-      }
+    // const unsub = onSnapshot(query(collection(db, "gems"), orderBy("createdAt", "desc")), async (snap) => {
+    //   if (snap.empty) {
+    //     const seeded = [];
+    //     for (const g of INITIAL_GEMS) {
+    //       const docRef = await addDoc(collection(db, "gems"), { ...g, firestoreId: "" });
+    //       await updateDoc(docRef, { firestoreId: docRef.id });
+    //       seeded.push({ ...g, firestoreId: docRef.id });
+    //     }
+    //     setGems(seeded);
+    //   } else {
+    //     setGems(snap.docs.map(d => ({ ...d.data(), firestoreId: d.id })));
+    //   }
+    // });
+    const unsub = onSnapshot(query(collection(db, "gems"), orderBy("createdAt", "desc")), (snap) => {
+      setGems(snap.docs.map(d => ({ ...d.data(), firestoreId: d.id })));
     });
     return () => unsub();
   }, []);
@@ -892,7 +895,7 @@ export default function DSGemsClient({ initialGems = [], initialPage = "home" }:
             {filtered.length === 0
               ? <div style={{ textAlign: "center", color: "#888", padding: 60, fontFamily: "sans-serif" }}>No gems found.</div>
               : <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 24 }}>
-                  {filtered.map(g => <GemCard key={g.id} gem={g} onClick={setSelectedGem} />)}
+                  {filtered.map(g => <GemCard key={g.firestoreId} gem={g} onClick={setSelectedGem} />)}
                 </div>
             }
           </div>
@@ -1008,7 +1011,7 @@ export default function DSGemsClient({ initialGems = [], initialPage = "home" }:
       {showAdmin && (
         <AdminPanel gems={gems}
           onAdd={async g => {
-            const docRef = await addDoc(collection(db, "gems"), { ...g, firestoreId: "" });
+            const docRef = await addDoc(collection(db, "gems"), { ...g, firestoreId: "", createdAt: serverTimestamp() });
             await updateDoc(docRef, { firestoreId: docRef.id });
           }}
           onUpdate={async g => {
