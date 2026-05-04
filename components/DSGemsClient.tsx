@@ -891,7 +891,7 @@ export default function DSGemsClient({ initialGems = [], initialPage = "home" }:
           <div style={{ padding: "36px 32px", maxWidth: 1200, margin: "0 auto" }}>
             {filtered.length === 0
               ? <div style={{ textAlign: "center", color: "#888", padding: 60, fontFamily: "sans-serif" }}>No gems found.</div>
-              : <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 24 }}>
+              : <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 24 }}>
                   {filtered.map(g => <GemCard key={g.id} gem={g} onClick={setSelectedGem} />)}
                 </div>
             }
