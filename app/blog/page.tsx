@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { db } from "@/lib/firebase";
-import { collection, onSnapshot, query, orderBy, where } from "firebase/firestore";
+import { collection, onSnapshot, query, orderBy} from "firebase/firestore";
 import Link from "next/link";
 
 function DiamondIcon() {
@@ -23,20 +23,29 @@ export default function BlogPage() {
   const [category, setCategory] = useState("All");
   const [menuOpen, setMenuOpen] = useState(false);
 
+  // WITH THIS:
   useEffect(() => {
     const q = query(
       collection(db, "blog_posts"),
-      where("published", "==", true),
       orderBy("createdAt", "desc")
     );
     const unsub = onSnapshot(q, (snap) => {
-      setPosts(snap.docs.map(d => ({ ...d.data(), firestoreId: d.id })));
+      setPosts(snap.docs.map(d => {
+        const data = d.data();
+        return {
+          ...data,
+          firestoreId: d.id,
+          createdAt: data.createdAt?.toDate?.()?.toISOString() ?? null,
+        };
+      }));
       setLoading(false);
     });
     return () => unsub();
   }, []);
 
-  const filtered = category === "All" ? posts : posts.filter(p => p.category === category);
+  const filtered = posts
+  .filter(p => p.published)
+  .filter(p => category === "All" || p.category === category);
   const featured = filtered.find(p => p.featured);
   const rest = filtered.filter(p => !p.featured || filtered.indexOf(p) > 0);
 

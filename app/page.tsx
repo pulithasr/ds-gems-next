@@ -7,7 +7,14 @@ export default async function HomePage() {
 
   try {
     const snap = await getDocs(collection(db, "gems"));
-    initialGems = snap.docs.map((d) => ({ ...d.data(), firestoreId: d.id }));
+    initialGems = snap.docs.map((d) => {
+      const data = d.data();
+      return {
+        ...data,
+        firestoreId: d.id,
+        createdAt: data.createdAt?.toDate?.()?.toISOString() ?? null,
+      };
+    });
   } catch (e) {
     console.error("SSR gem fetch failed:", e);
   }

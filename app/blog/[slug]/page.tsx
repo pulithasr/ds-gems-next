@@ -29,7 +29,12 @@ export default function BlogPostPage() {
       const q = query(collection(db, "blog_posts"), where("slug", "==", slug), where("published", "==", true));
       const snap = await getDocs(q);
       if (snap.empty) { setNotFound(true); setLoading(false); return; }
-      setPost({ ...snap.docs[0].data(), firestoreId: snap.docs[0].id });
+      const data = snap.docs[0].data();
+      setPost({
+        ...data,
+        firestoreId: snap.docs[0].id,
+        createdAt: data.createdAt?.toDate?.()?.toISOString() ?? null,
+      });
       setLoading(false);
     })();
   }, [slug]);
