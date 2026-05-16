@@ -1,6 +1,7 @@
 "use client";  // ← ADD THIS as the very first line
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { db, auth } from "@/lib/firebase";  // ← CHANGE import path
 import { signInWithEmailAndPassword, signOut } from "firebase/auth";
 import {
@@ -843,8 +844,10 @@ export default function DSGemsClient({ initialGems = [], initialPage = "home" }:
         <div style={{ display: "flex", gap: 20, alignItems: "center" }}>
           <style>{`@media(max-width:640px){.ds-desktop-nav{display:none!important}}`}</style>
           <div className="ds-desktop-nav" style={{ display: "flex", gap: 20, alignItems: "center" }}>
-            {["home","about","blog","contact"].map(p => (
-              <button key={p} onClick={() => setPage(p)} style={{ background: "none", border: "none", color: page===p ? "#a8f0c8" : "rgba(168,240,200,0.55)", fontSize: 15, cursor: "pointer", textTransform: "capitalize", fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 600, letterSpacing: 1, borderBottom: page===p ? "1.5px solid #a8f0c8" : "none", paddingBottom: 2 }}>{p}</button>
+            {[["home","/"],["about","/about"],["blog","/blog"],["contact","/contact"]].map(([p,href]) => (
+              p === "blog"
+                ? <Link key={p} href={href} style={{ color: "rgba(168,240,200,0.55)", fontSize: 15, textDecoration: "none", textTransform: "capitalize", fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 600, letterSpacing: 1 }}>{p}</Link>
+                : <button key={p} onClick={() => setPage(p)} style={{ background: "none", border: "none", color: page===p ? "#a8f0c8" : "rgba(168,240,200,0.55)", fontSize: 15, cursor: "pointer", textTransform: "capitalize", fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 600, letterSpacing: 1, borderBottom: page===p ? "1.5px solid #a8f0c8" : "none", paddingBottom: 2 }}>{p}</button>
             ))}
             <button onClick={() => setAdminPrompt(true)} style={{ background: "rgba(168,240,200,0.12)", border: "1px solid rgba(168,240,200,0.3)", borderRadius: 20, padding: "6px 16px", color: "#a8f0c8", fontFamily: "sans-serif", fontSize: 12, cursor: "pointer", letterSpacing: 1 }}>Admin</button>
           </div>
@@ -861,8 +864,10 @@ export default function DSGemsClient({ initialGems = [], initialPage = "home" }:
         {/* Mobile dropdown menu */}
         {menuOpen && (
           <div style={{ position: "absolute", top: 64, left: 0, right: 0, background: "#06402b", display: "flex", flexDirection: "column", padding: "12px 20px 20px", gap: 4, boxShadow: "0 8px 20px rgba(0,0,0,0.3)", zIndex: 99 }}>
-            {["home","about","blog","contact"].map(p => (
-              <button key={p} onClick={() => { setPage(p); setMenuOpen(false); }} style={{ background: "none", border: "none", color: page===p ? "#a8f0c8" : "rgba(168,240,200,0.7)", fontSize: 18, cursor: "pointer", textTransform: "capitalize", fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 600, letterSpacing: 1, padding: "10px 0", textAlign: "left", borderBottom: "1px solid rgba(168,240,200,0.1)" }}>{p}</button>
+            {[["home","/"],["about","/about"],["blog","/blog"],["contact","/contact"]].map(([p,href]) => (
+              p === "blog"
+                ? <Link key={p} href={href} onClick={() => setMenuOpen(false)} style={{ color: "rgba(168,240,200,0.7)", fontSize: 18, textDecoration: "none", textTransform: "capitalize", fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 600, letterSpacing: 1, padding: "10px 0", borderBottom: "1px solid rgba(168,240,200,0.1)", display: "block" }}>{p}</Link>
+                : <button key={p} onClick={() => { setPage(p); setMenuOpen(false); }} style={{ background: "none", border: "none", color: page===p ? "#a8f0c8" : "rgba(168,240,200,0.7)", fontSize: 18, cursor: "pointer", textTransform: "capitalize", fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 600, letterSpacing: 1, padding: "10px 0", textAlign: "left", borderBottom: "1px solid rgba(168,240,200,0.1)" }}>{p}</button>
             ))}
             <button onClick={() => { setAdminPrompt(true); setMenuOpen(false); }} style={{ background: "rgba(168,240,200,0.12)", border: "1px solid rgba(168,240,200,0.3)", borderRadius: 20, padding: "10px 16px", color: "#a8f0c8", fontFamily: "sans-serif", fontSize: 14, cursor: "pointer", letterSpacing: 1, marginTop: 8 }}>Admin</button>
           </div>
