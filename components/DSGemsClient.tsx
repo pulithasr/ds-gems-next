@@ -7,7 +7,7 @@ import { signInWithEmailAndPassword, signOut } from "firebase/auth";
 import {
   collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, query, orderBy, serverTimestamp,
 } from "firebase/firestore";
-
+import GemChatbot from "@/components/GemChatbot";
 // ── CLOUDINARY CONFIG ── (keep as-is)
 const CLOUD_NAME = "dixrukvmw";
 const UPLOAD_PRESET = "ds_gems_unsigned";
@@ -1027,6 +1027,9 @@ export default function DSGemsClient({ initialGems = [], initialPage = "home" }:
           }}
           onClose={() => setShowAdmin(false)} />
       )}
+
+      <GemChatbot />
+      
     </div>
   );
 }
