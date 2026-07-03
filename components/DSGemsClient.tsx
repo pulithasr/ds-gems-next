@@ -943,7 +943,11 @@ export default function DSGemsClient({ initialGems = [], initialPage = "home" }:
             {[["Email","dsgemslk@gmail.com"],["WhatsApp","+94 71 555 7038"],["Instagram","@dsgems.lk"],["Location","Colombo, Sri Lanka"],["Business Hours","Mon – Sat, 9am – 6pm"]].map(([k,v]) => (
               <div key={k} style={{ display: "flex", gap: 18, alignItems: "flex-start", background: "#f0f9f4", borderRadius: 12, padding: "14px 18px", border: "1px solid #d0eadd" }}>
                 <div style={{ fontSize: 13, color: "#888", fontFamily: "sans-serif", minWidth: 110 }}>{k}</div>
-                <div style={{ fontSize: 16, color: "#06402b", fontWeight: 600 }}>{v}</div>
+                {k === "Instagram" ? (
+                  <a href="https://www.instagram.com/dsgems.lk/" target="_blank" rel="noreferrer" style={{ fontSize: 16, color: "#06402b", fontWeight: 600, textDecoration: "none" }}>{v}</a>
+                ) : (
+                  <div style={{ fontSize: 16, color: "#06402b", fontWeight: 600 }}>{v}</div>
+                )}
               </div>
             ))}
           </div>
