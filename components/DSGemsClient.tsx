@@ -944,7 +944,7 @@ export default function DSGemsClient({ initialGems = [], initialPage = "home" }:
               <div key={k} style={{ display: "flex", gap: 18, alignItems: "flex-start", background: "#f0f9f4", borderRadius: 12, padding: "14px 18px", border: "1px solid #d0eadd" }}>
                 <div style={{ fontSize: 13, color: "#888", fontFamily: "sans-serif", minWidth: 110 }}>{k}</div>
                 {k === "Instagram" ? (
-                  <a href="https://www.instagram.com/dsgems.lk/" target="_blank" rel="noreferrer" style={{ fontSize: 16, color: "#06402b", fontWeight: 600, textDecoration: "none" }}>{v}</a>
+                  <a href="https://www.instagram.com/dsgemlk/" target="_blank" rel="noreferrer" style={{ fontSize: 16, color: "#06402b", fontWeight: 600, textDecoration: "none" }}>{v}</a>
                 ) : (
                   <div style={{ fontSize: 16, color: "#06402b", fontWeight: 600 }}>{v}</div>
                 )}
