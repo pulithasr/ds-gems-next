@@ -196,7 +196,7 @@ function Modal({ gem, onClose }: { gem: any, onClose: () => void }) {
           </div>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
             <span style={{ fontSize: 24, fontWeight: 700, color: "#06402b" }}>{gem.price}</span>
-            <button style={{ background: "#06402b", border: "none", borderRadius: 20, padding: "10px 26px", cursor: "pointer", fontSize: 15, color: "#a8f0c8", fontFamily: "sans-serif" }}>Enquire Now</button>
+            <a href={`mailto:dsgemslk@gmail.com?subject=${encodeURIComponent(`Enquiry: ${gem.name}`)}&body=${encodeURIComponent(`Hi, I'm interested in the ${gem.name} (${gem.price}). Could you share more details?`)}`} style={{ background: "#06402b", border: "none", borderRadius: 20, padding: "10px 26px", cursor: "pointer", fontSize: 15, color: "#a8f0c8", fontFamily: "sans-serif", textDecoration: "none", display: "inline-block" }}>Enquire Now</a>
           </div>
         </div>
       </div>
