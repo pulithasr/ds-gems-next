@@ -123,6 +123,27 @@ function GemCard({ gem, onClick }: { gem: any, onClick: (gem: any) => void }) {
   );
 }
 
+// ─── GEM LIST ROW (mobile compact view) ──────────────────────────────────────
+function GemListRow({ gem, onClick }: { gem: any, onClick: (gem: any) => void }) {
+  const colors = GEM_COLORS[gem.category as keyof typeof GEM_COLORS] || GEM_COLORS.Emerald;
+  const hasImage = gem.images && gem.images.length > 0;
+  return (
+    <div onClick={() => onClick(gem)} style={{ display: "flex", gap: 14, alignItems: "center", background: "#fff", border: "1px solid #d8e8df", borderRadius: 12, padding: 10, cursor: "pointer", fontFamily: "'Cormorant Garamond', Georgia, serif" }}>
+      <div style={{ width: 64, height: 64, borderRadius: 10, overflow: "hidden", background: colors.bg, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+        {hasImage ? <img src={gem.images[0]} alt={gem.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <GemPlaceholder category={gem.category} size={40} />}
+      </div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontSize: 11, color: "#888", fontFamily: "sans-serif", letterSpacing: 1, textTransform: "uppercase" }}>{gem.origin} · {gem.category}</div>
+        <div style={{ fontSize: 17, fontWeight: 600, color: "#06402b", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{gem.name}</div>
+        <div style={{ fontSize: 15, fontWeight: 700, color: "#06402b", marginTop: 2 }}>{gem.price}</div>
+      </div>
+      {gem.badge && (
+        <span style={{ background: BADGE_STYLES[gem.badge as keyof typeof BADGE_STYLES]?.bg || "#06402b", color: BADGE_STYLES[gem.badge as keyof typeof BADGE_STYLES]?.color || "#a8f0c8", fontSize: 10, fontFamily: "sans-serif", fontWeight: 600, padding: "3px 8px", borderRadius: 20, letterSpacing: 0.5, textTransform: "uppercase", flexShrink: 0 }}>{gem.badge}</span>
+      )}
+    </div>
+  );
+}
+
 // ─── DETAIL MODAL ─────────────────────────────────────────────────────────────
 function Modal({ gem, onClose }: { gem: any, onClose: () => void }) {
   const [activeImg, setActiveImg] = useState(0);
@@ -804,6 +825,14 @@ export default function DSGemsClient({ initialGems = [], initialPage = "home" }:
   const [keyError, setKeyError] = useState(false);
   const [page, setPage] = useState(initialPage);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<"detailed" | "list">("detailed");
+
+  useEffect(() => {
+    const handleResize = () => { if (window.innerWidth > 640) setViewMode("detailed"); };
+    window.addEventListener("resize", handleResize);
+    handleResize();
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const treatments = ["All", ...Array.from(new Set(gems.map(g => g.treatment).filter(Boolean)))];
@@ -1012,11 +1041,21 @@ export default function DSGemsClient({ initialGems = [], initialPage = "home" }:
           </div>
 
           <div style={{ padding: "36px 32px", maxWidth: 1200, margin: "0 auto" }}>
+            <style>{`@media(min-width:641px){.ds-view-toggle{display:none!important}}`}</style>
+            <div className="ds-view-toggle" style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+              <button onClick={() => setViewMode("detailed")} style={{ flex: 1, background: viewMode === "detailed" ? "#06402b" : "transparent", color: viewMode === "detailed" ? "#a8f0c8" : "#06402b", border: "1px solid #06402b", borderRadius: 20, padding: "8px 0", fontSize: 13, fontFamily: "sans-serif", cursor: "pointer" }}>Detailed</button>
+              <button onClick={() => setViewMode("list")} style={{ flex: 1, background: viewMode === "list" ? "#06402b" : "transparent", color: viewMode === "list" ? "#a8f0c8" : "#06402b", border: "1px solid #06402b", borderRadius: 20, padding: "8px 0", fontSize: 13, fontFamily: "sans-serif", cursor: "pointer" }}>List</button>
+            </div>
+
             {filtered.length === 0
               ? <div style={{ textAlign: "center", color: "#888", padding: 60, fontFamily: "sans-serif" }}>No gems found.</div>
-              : <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 24 }}>
-                  {filtered.map(g => <GemCard key={g.firestoreId} gem={g} onClick={setSelectedGem} />)}
-                </div>
+              : viewMode === "list"
+                ? <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                    {filtered.map(g => <GemListRow key={g.firestoreId} gem={g} onClick={setSelectedGem} />)}
+                  </div>
+                : <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 24 }}>
+                    {filtered.map(g => <GemCard key={g.firestoreId} gem={g} onClick={setSelectedGem} />)}
+                  </div>
             }
           </div>
 
