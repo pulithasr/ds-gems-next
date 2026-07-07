@@ -1106,7 +1106,7 @@ export default function DSGemsClient({ initialGems = [], initialPage = "home" }:
           <h2 style={{ fontSize: 40, color: "#06402b", fontWeight: 700, marginBottom: 20 }}>Contact DS Gems</h2>
           <p style={{ fontSize: 16, color: "#555", fontFamily: "sans-serif", lineHeight: 1.7, marginBottom: 32 }}>For enquiries, pricing, certificates, or to arrange a viewing our team is ready to assist international buyers and dealers.</p>
           <div style={{ display: "flex", flexDirection: "column", gap: 14, marginBottom: 36 }}>
-            {[["Email","dsgemslk@gmail.com"],["WhatsApp","+94 71 555 7038"],["Instagram","@dsgems.lk"],["Location","Colombo, Sri Lanka"],["Business Hours","Mon – Sat, 9am – 6pm"]].map(([k,v]) => (
+            {[["Email","dsgemslk@gmail.com"],["WhatsApp","+94 71 555 7038"],["Instagram","@dsgemslk"],["Location","Colombo, Sri Lanka"],["Business Hours","Mon – Sat, 9am – 6pm"]].map(([k,v]) => (
               <div key={k} style={{ display: "flex", gap: 18, alignItems: "flex-start", background: "#f0f9f4", borderRadius: 12, padding: "14px 18px", border: "1px solid #d0eadd" }}>
                 <div style={{ fontSize: 13, color: "#888", fontFamily: "sans-serif", minWidth: 110 }}>{k}</div>
                 {k === "Instagram" ? (
@@ -1132,7 +1132,7 @@ export default function DSGemsClient({ initialGems = [], initialPage = "home" }:
         <span style={{ color: "rgba(255,255,255,0.35)", fontSize: 12, fontFamily: "sans-serif" }}>© 2025 DS Gems, Sri Lanka. All rights reserved.</span>
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
           <span style={{ color: "rgba(168,240,200,0.5)", fontSize: 12, fontFamily: "sans-serif" }}>Worldwide Natural Gemstone Dealer</span>
-          <a href="https://www.instagram.com/dsgems.lk/" target="_blank" rel="noreferrer"
+          <a href="https://www.instagram.com/dsgemslk/" target="_blank" rel="noreferrer"
             style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none", background: "linear-gradient(135deg, rgba(131,58,180,0.25), rgba(253,29,29,0.25), rgba(252,176,69,0.25))", border: "1px solid rgba(168,240,200,0.15)", borderRadius: 24, padding: "6px 14px", transition: "all 0.2s" }}
             onMouseEnter={e => e.currentTarget.style.background = "linear-gradient(135deg, rgba(131,58,180,0.45), rgba(253,29,29,0.45), rgba(252,176,69,0.45))"}
             onMouseLeave={e => e.currentTarget.style.background = "linear-gradient(135deg, rgba(131,58,180,0.25), rgba(253,29,29,0.25), rgba(252,176,69,0.25))"}>
