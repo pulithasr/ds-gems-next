@@ -805,7 +805,7 @@ export default function DSGemsClient({ initialGems = [], initialPage = "home" }:
   const [page, setPage] = useState(initialPage);
   const [menuOpen, setMenuOpen] = useState(false);
 
-
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
   const treatments = ["All", ...Array.from(new Set(gems.map(g => g.treatment).filter(Boolean)))];
   const weightValues = gems.map(g => parseFloat(g.weight)).filter(n => !isNaN(n));
   const weightMin = weightValues.length ? Math.floor(Math.min(...weightValues) * 10) / 10 : 0;
@@ -904,13 +904,23 @@ export default function DSGemsClient({ initialGems = [], initialPage = "home" }:
           </div>
 
           <div style={{ background: "#fff", borderBottom: "1px solid #d8eee3", padding: "18px 32px 20px", display: "flex", flexDirection: "column", gap: 16 }}>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 12, alignItems: "center" }}>
+            <style>{`
+              .ds-filter-desktop { display: flex; }
+              .ds-filter-mobile { display: none; }
+              @media (max-width: 640px) {
+                .ds-filter-desktop { display: none !important; }
+                .ds-filter-mobile { display: flex !important; }
+              }
+            `}</style>
+
+            {/* ── DESKTOP FILTERS (unchanged) ── */}
+            <div className="ds-filter-desktop" style={{ flexWrap: "wrap", gap: 12, alignItems: "center" }}>
               {CATEGORIES.map(c => (
                 <button key={c} onClick={() => setCategory(c)} style={{ background: category===c ? "#06402b" : "transparent", color: category===c ? "#a8f0c8" : "#06402b", border: "1px solid #06402b", borderRadius: 20, padding: "6px 18px", fontSize: 13, fontFamily: "sans-serif", cursor: "pointer" }}>{c}</button>
               ))}
             </div>
 
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 24, alignItems: "center", justifyContent: "space-between", paddingTop: 14, borderTop: "1px solid #eef4f1" }}>
+            <div className="ds-filter-desktop" style={{ flexWrap: "wrap", gap: 24, alignItems: "center", justifyContent: "space-between", paddingTop: 14, borderTop: "1px solid #eef4f1" }}>
               <div style={{ display: "flex", gap: 12, flexWrap: "wrap", alignItems: "center" }}>
                 <div style={{ position: "relative", minWidth: 220 }}>
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#888" strokeWidth="2" strokeLinecap="round" style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}>
@@ -945,6 +955,59 @@ export default function DSGemsClient({ initialGems = [], initialPage = "home" }:
                     style={{ position: "absolute", top: 0, margin: 0 }} />
                 </div>
               </div>
+            </div>
+
+            {/* ── MOBILE: search + filters button ── */}
+            <div className="ds-filter-mobile" style={{ flexDirection: "column", gap: 12 }}>
+              <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                <div style={{ position: "relative", flex: 1 }}>
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#888" strokeWidth="2" strokeLinecap="round" style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}>
+                    <circle cx="11" cy="11" r="7" />
+                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                  </svg>
+                  <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by name or origin…" style={{ border: "1px solid #cce0d4", borderRadius: 20, padding: "8px 18px 8px 38px", fontFamily: "sans-serif", fontSize: 14, color: "#1a3a2a", outline: "none", width: "100%", background: "#f8fdfb", boxSizing: "border-box" }} />
+                </div>
+                <button onClick={() => setShowMobileFilters(o => !o)} style={{ display: "flex", alignItems: "center", gap: 6, background: showMobileFilters ? "#06402b" : "transparent", color: showMobileFilters ? "#a8f0c8" : "#06402b", border: "1px solid #06402b", borderRadius: 20, padding: "8px 16px", fontSize: 13, fontFamily: "sans-serif", cursor: "pointer", whiteSpace: "nowrap", flexShrink: 0 }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="4" y1="6" x2="20" y2="6" /><line x1="8" y1="12" x2="16" y2="12" /><line x1="11" y1="18" x2="13" y2="18" />
+                  </svg>
+                  Filters
+                </button>
+              </div>
+
+              {showMobileFilters && (
+                <div style={{ display: "flex", flexDirection: "column", gap: 16, background: "#f8fdfb", border: "1px solid #e0ede7", borderRadius: 14, padding: "14px 16px" }}>
+                  <div>
+                    <div style={{ fontSize: 11, color: "#888", fontFamily: "sans-serif", letterSpacing: 1, textTransform: "uppercase", marginBottom: 8 }}>Treatment</div>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                      {treatments.map(t => (
+                        <button key={t} onClick={() => setTreatment(t)} style={{ background: treatment===t ? "#06402b" : "transparent", color: treatment===t ? "#a8f0c8" : "#06402b", border: "1px solid #06402b", borderRadius: 20, padding: "5px 16px", fontSize: 12, fontFamily: "sans-serif", cursor: "pointer" }}>{t === "All" ? "All" : t}</button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                    <div style={{ fontSize: 11, color: "#888", fontFamily: "sans-serif", letterSpacing: 1, textTransform: "uppercase", display: "flex", justifyContent: "space-between" }}>
+                      <span>Weight</span>
+                      <span style={{ color: "#06402b", fontWeight: 600 }}>{effectiveRange[0].toFixed(1)} – {effectiveRange[1].toFixed(1)} ct</span>
+                    </div>
+                    <div style={{ position: "relative", height: 22 }}>
+                      <div style={{ position: "absolute", top: 9, left: 0, right: 0, height: 4, background: "#e0ede7", borderRadius: 2 }} />
+                      <div style={{
+                        position: "absolute", top: 9, height: 4, borderRadius: 2, background: "#06402b",
+                        left: `${((effectiveRange[0] - weightMin) / ((weightMax - weightMin) || 1)) * 100}%`,
+                        right: `${100 - ((effectiveRange[1] - weightMin) / ((weightMax - weightMin) || 1)) * 100}%`
+                      }} />
+                      <input type="range" min={weightMin} max={weightMax} step={0.1} value={effectiveRange[0]} className="range-thumb"
+                        onChange={e => { const v = Math.min(parseFloat(e.target.value), effectiveRange[1]); setWeightRange([v, effectiveRange[1]]); }}
+                        style={{ position: "absolute", top: 0, margin: 0 }} />
+                      <input type="range" min={weightMin} max={weightMax} step={0.1} value={effectiveRange[1]} className="range-thumb"
+                        onChange={e => { const v = Math.max(parseFloat(e.target.value), effectiveRange[0]); setWeightRange([effectiveRange[0], v]); }}
+                        style={{ position: "absolute", top: 0, margin: 0 }} />
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
