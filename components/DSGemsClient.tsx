@@ -988,7 +988,7 @@ export default function DSGemsClient({ initialGems = [], initialPage = "home" }:
 
             {/* ── MOBILE: search + filters button ── */}
             <div className="ds-filter-mobile" style={{ flexDirection: "column", gap: 12 }}>
-              <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
                 <div style={{ position: "relative", flex: 1 }}>
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#888" strokeWidth="2" strokeLinecap="round" style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}>
                     <circle cx="11" cy="11" r="7" />
@@ -996,7 +996,23 @@ export default function DSGemsClient({ initialGems = [], initialPage = "home" }:
                   </svg>
                   <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by name or origin…" style={{ border: "1px solid #cce0d4", borderRadius: 20, padding: "8px 18px 8px 38px", fontFamily: "sans-serif", fontSize: 14, color: "#1a3a2a", outline: "none", width: "100%", background: "#f8fdfb", boxSizing: "border-box" }} />
                 </div>
-                <button onClick={() => setShowMobileFilters(o => !o)} style={{ display: "flex", alignItems: "center", gap: 6, background: showMobileFilters ? "#06402b" : "transparent", color: showMobileFilters ? "#a8f0c8" : "#06402b", border: "1px solid #06402b", borderRadius: 20, padding: "8px 16px", fontSize: 13, fontFamily: "sans-serif", cursor: "pointer", whiteSpace: "nowrap", flexShrink: 0 }}>
+
+                {/* Detailed view icon */}
+                <button onClick={() => setViewMode("detailed")} title="Detailed view" style={{ display: "flex", alignItems: "center", justifyContent: "center", background: viewMode === "detailed" ? "#06402b" : "transparent", color: viewMode === "detailed" ? "#a8f0c8" : "#06402b", border: "1px solid #06402b", borderRadius: "50%", width: 34, height: 34, cursor: "pointer", flexShrink: 0, padding: 0 }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="3" width="7" height="7" rx="1" /><rect x="14" y="3" width="7" height="7" rx="1" />
+                    <rect x="3" y="14" width="7" height="7" rx="1" /><rect x="14" y="14" width="7" height="7" rx="1" />
+                  </svg>
+                </button>
+
+                {/* List view icon */}
+                <button onClick={() => setViewMode("list")} title="List view" style={{ display: "flex", alignItems: "center", justifyContent: "center", background: viewMode === "list" ? "#06402b" : "transparent", color: viewMode === "list" ? "#a8f0c8" : "#06402b", border: "1px solid #06402b", borderRadius: "50%", width: 34, height: 34, cursor: "pointer", flexShrink: 0, padding: 0 }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="4" y1="6" x2="20" y2="6" /><line x1="4" y1="12" x2="20" y2="12" /><line x1="4" y1="18" x2="20" y2="18" />
+                  </svg>
+                </button>
+
+                <button onClick={() => setShowMobileFilters(o => !o)} style={{ display: "flex", alignItems: "center", gap: 6, background: showMobileFilters ? "#06402b" : "transparent", color: showMobileFilters ? "#a8f0c8" : "#06402b", border: "1px solid #06402b", borderRadius: 20, padding: "8px 14px", fontSize: 13, fontFamily: "sans-serif", cursor: "pointer", whiteSpace: "nowrap", flexShrink: 0 }}>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <line x1="4" y1="6" x2="20" y2="6" /><line x1="8" y1="12" x2="16" y2="12" /><line x1="11" y1="18" x2="13" y2="18" />
                   </svg>
@@ -1041,11 +1057,7 @@ export default function DSGemsClient({ initialGems = [], initialPage = "home" }:
           </div>
 
           <div style={{ padding: "36px 32px", maxWidth: 1200, margin: "0 auto" }}>
-            <style>{`@media(min-width:641px){.ds-view-toggle{display:none!important}}`}</style>
-            <div className="ds-view-toggle" style={{ display: "flex", gap: 8, marginBottom: 16 }}>
-              <button onClick={() => setViewMode("detailed")} style={{ flex: 1, background: viewMode === "detailed" ? "#06402b" : "transparent", color: viewMode === "detailed" ? "#a8f0c8" : "#06402b", border: "1px solid #06402b", borderRadius: 20, padding: "8px 0", fontSize: 13, fontFamily: "sans-serif", cursor: "pointer" }}>Detailed</button>
-              <button onClick={() => setViewMode("list")} style={{ flex: 1, background: viewMode === "list" ? "#06402b" : "transparent", color: viewMode === "list" ? "#a8f0c8" : "#06402b", border: "1px solid #06402b", borderRadius: 20, padding: "8px 0", fontSize: 13, fontFamily: "sans-serif", cursor: "pointer" }}>List</button>
-            </div>
+            
 
             {filtered.length === 0
               ? <div style={{ textAlign: "center", color: "#888", padding: 60, fontFamily: "sans-serif" }}>No gems found.</div>
