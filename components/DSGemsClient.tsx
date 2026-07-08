@@ -1139,7 +1139,14 @@ export default function DSGemsClient({ initialGems = [], initialPage = "home" }:
       )}
 
       <footer style={{ background: "#032b1c", padding: "40px 32px 24px", marginTop: 40 }}>
-
+        <style>{`
+          @media (max-width: 640px) {
+            .ds-footer-grid { grid-template-columns: 1fr 1fr !important; gap: 24px !important; }
+          }
+          @media (max-width: 420px) {
+            .ds-footer-grid { grid-template-columns: 1fr !important; }
+          }
+        `}</style>
         {/* Stats row — only on home page */}
           {page === "home" && (
             <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", justifyContent: "center", gap: 60, flexWrap: "wrap", paddingBottom: 36, marginBottom: 36, borderBottom: "1px solid rgba(168,240,200,0.1)" }}>
@@ -1153,8 +1160,7 @@ export default function DSGemsClient({ initialGems = [], initialPage = "home" }:
           )}
 
         {/* Main footer columns */}
-        <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr", gap: 32, paddingBottom: 32, borderBottom: "1px solid rgba(168,240,200,0.1)" }}>
-
+        <div className="ds-footer-grid" style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr", gap: 32, paddingBottom: 32, borderBottom: "1px solid rgba(168,240,200,0.1)" }}>
           {/* Brand column */}
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
