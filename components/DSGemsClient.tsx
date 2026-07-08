@@ -1082,14 +1082,14 @@ export default function DSGemsClient({ initialGems = [], initialPage = "home" }:
             }
           </div>
 
-          <div style={{ background: "#06402b", padding: "32px", display: "flex", justifyContent: "center", gap: 60, flexWrap: "wrap" }}>
+          {/* <div style={{ background: "#06402b", padding: "32px", display: "flex", justifyContent: "center", gap: 60, flexWrap: "wrap" }}>
             {[["1000+","Gems Traded"],["4+","Countries Served"],["15+","Years Experience"],["100%","Authentic"]].map(([n,l]) => (
               <div key={l} style={{ textAlign: "center" }}>
                 <div style={{ fontSize: 32, fontWeight: 700, color: "#a8f0c8" }}>{n}</div>
                 <div style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", fontFamily: "sans-serif", letterSpacing: 1, marginTop: 4 }}>{l}</div>
               </div>
             ))}
-          </div>
+          </div> */}
         </>
       )}
 
@@ -1138,18 +1138,76 @@ export default function DSGemsClient({ initialGems = [], initialPage = "home" }:
         </div>
       )}
 
-      <footer style={{ background: "#032b1c", padding: "24px 32px", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12, marginTop: 40 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}><DiamondIcon /><span style={{ color: "rgba(168,240,200,0.8)", fontSize: 16, fontWeight: 600, letterSpacing: 2 }}>DS GEMS</span></div>
-        <span style={{ color: "rgba(255,255,255,0.35)", fontSize: 12, fontFamily: "sans-serif" }}>© 2025 DS Gems, Sri Lanka. All rights reserved.</span>
-        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          <span style={{ color: "rgba(168,240,200,0.5)", fontSize: 12, fontFamily: "sans-serif" }}>Worldwide Natural Gemstone Dealer</span>
-          <a href="https://www.instagram.com/dsgemslk/" target="_blank" rel="noreferrer"
+      <footer style={{ background: "#032b1c", padding: "40px 32px 24px", marginTop: 40 }}>
+
+        {/* Stats row — only on home page */}
+          {page === "home" && (
+            <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", justifyContent: "center", gap: 60, flexWrap: "wrap", paddingBottom: 36, marginBottom: 36, borderBottom: "1px solid rgba(168,240,200,0.1)" }}>
+              {[["5+","Gem Varieties"],["4+","Countries Served"],["15+","Years Experience"],["100%","Authentic"]].map(([n,l]) => (
+                <div key={l} style={{ textAlign: "center" }}>
+                  <div style={{ fontSize: 36, fontWeight: 800, color: "#a8f0c8", lineHeight: 1, fontVariantNumeric: "tabular-nums", letterSpacing: 0.5 }}>{n}</div>
+                  <div style={{ fontSize: 12, color: "rgba(255,255,255,0.65)", fontFamily: "sans-serif", fontWeight: 600, letterSpacing: 1.5, textTransform: "uppercase", marginTop: 8 }}>{l}</div>
+                </div>
+              ))}
+            </div>
+          )}
+
+        {/* Main footer columns */}
+        <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr", gap: 32, paddingBottom: 32, borderBottom: "1px solid rgba(168,240,200,0.1)" }}>
+
+          {/* Brand column */}
+          <div>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
+              <DiamondIcon />
+              <span style={{ color: "#a8f0c8", fontSize: 18, fontWeight: 700, letterSpacing: 2 }}>DS GEMS</span>
+            </div>
+            <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 13, fontFamily: "sans-serif", lineHeight: 1.7, maxWidth: 280 }}>
+              Sri Lanka's trusted natural gemstone dealer, connecting collectors and dealers worldwide with certified, ethically sourced gems.
+            </p>
+          </div>
+
+          {/* Quick links */}
+          <div>
+            <div style={{ color: "#a8f0c8", fontSize: 13, fontFamily: "sans-serif", fontWeight: 600, letterSpacing: 1, textTransform: "uppercase", marginBottom: 16 }}>Explore</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {[["Home","home"],["About","about"],["Contact","contact"]].map(([label,p]) => (
+                <button key={p} onClick={() => setPage(p)} style={{ background: "none", border: "none", color: "rgba(255,255,255,0.55)", fontFamily: "sans-serif", fontSize: 13, textAlign: "left", cursor: "pointer", padding: 0 }}>{label}</button>
+              ))}
+              <Link href="/blog" style={{ color: "rgba(255,255,255,0.55)", fontFamily: "sans-serif", fontSize: 13, textDecoration: "none" }}>Blog</Link>
+            </div>
+          </div>
+
+          {/* Categories */}
+          <div>
+            <div style={{ color: "#a8f0c8", fontSize: 13, fontFamily: "sans-serif", fontWeight: 600, letterSpacing: 1, textTransform: "uppercase", marginBottom: 16 }}>Gemstones</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {["Sapphire","Ruby","Emerald","Alexandrite","Tanzanite"].map(c => (
+                <button key={c} onClick={() => { setPage("home"); setCategory(c); }} style={{ background: "none", border: "none", color: "rgba(255,255,255,0.55)", fontFamily: "sans-serif", fontSize: 13, textAlign: "left", cursor: "pointer", padding: 0 }}>{c}</button>
+              ))}
+            </div>
+          </div>
+
+          {/* Contact */}
+          <div>
+            <div style={{ color: "#a8f0c8", fontSize: 13, fontFamily: "sans-serif", fontWeight: 600, letterSpacing: 1, textTransform: "uppercase", marginBottom: 16 }}>Contact</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10, fontFamily: "sans-serif", fontSize: 13, color: "rgba(255,255,255,0.55)" }}>
+              <a href="mailto:dsgemslk@gmail.com" style={{ color: "inherit", textDecoration: "none" }}>dsgemslk@gmail.com</a>
+              <a href="https://wa.me/94715557038" target="_blank" rel="noreferrer" style={{ color: "inherit", textDecoration: "none" }}>+94 71 555 7038</a>
+              <span>Colombo, Sri Lanka</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom bar */}
+        <div style={{ maxWidth: 1200, margin: "0 auto", paddingTop: 20, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
+          <span style={{ color: "rgba(255,255,255,0.35)", fontSize: 12, fontFamily: "sans-serif" }}>© {new Date().getFullYear()} DS Gems, Sri Lanka. All rights reserved.</span>
+          <a href="https://www.instagram.com/dsgems.lk/" target="_blank" rel="noreferrer"
             style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none", background: "linear-gradient(135deg, rgba(131,58,180,0.25), rgba(253,29,29,0.25), rgba(252,176,69,0.25))", border: "1px solid rgba(168,240,200,0.15)", borderRadius: 24, padding: "6px 14px", transition: "all 0.2s" }}
             onMouseEnter={e => e.currentTarget.style.background = "linear-gradient(135deg, rgba(131,58,180,0.45), rgba(253,29,29,0.45), rgba(252,176,69,0.45))"}
             onMouseLeave={e => e.currentTarget.style.background = "linear-gradient(135deg, rgba(131,58,180,0.25), rgba(253,29,29,0.25), rgba(252,176,69,0.25))"}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="url(#igGrad)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="url(#igGrad2)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <defs>
-                <linearGradient id="igGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+                <linearGradient id="igGrad2" x1="0%" y1="100%" x2="100%" y2="0%">
                   <stop offset="0%" stopColor="#f9ce34"/>
                   <stop offset="50%" stopColor="#ee2a7b"/>
                   <stop offset="100%" stopColor="#6228d7"/>
@@ -1163,7 +1221,6 @@ export default function DSGemsClient({ initialGems = [], initialPage = "home" }:
           </a>
         </div>
       </footer>
-
       {selectedGem && <Modal gem={selectedGem} onClose={() => setSelectedGem(null)} />}
 
       {adminPrompt && (
