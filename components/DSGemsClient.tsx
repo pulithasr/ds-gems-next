@@ -385,9 +385,20 @@ function AdminPanel({ gems, onAdd, onUpdate, onRemove, onClose }: { gems: any[],
               </div>
 
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }}>
-                {[["name","Gem Name *"],["origin","Origin"],["weight","Weight (e.g. 2.5 ct)"],["clarity","Clarity"],["treatment","Treatment"],["price","Price * (e.g. USD 3,200)"]].map(([k,lbl]) => (
-                  <div key={k}><div style={{ fontSize: 12, color: "#666", marginBottom: 4 }}>{lbl}</div><input style={inp} value={(form as any)[k]} onChange={e => set(k, e.target.value)} placeholder={lbl} /></div>
-                ))}
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }}>
+                  {[["name","Gem Name *"],["origin","Origin"],["weight","Weight (e.g. 2.5 ct)"],["clarity","Clarity"],["price","Price * (e.g. USD 3,200)"]].map(([k,lbl]) => (
+                    <div key={k}><div style={{ fontSize: 12, color: "#666", marginBottom: 4 }}>{lbl}</div><input style={inp} value={(form as any)[k]} onChange={e => set(k, e.target.value)} placeholder={lbl} /></div>
+                  ))}
+                  <div>
+                    <div style={{ fontSize: 12, color: "#666", marginBottom: 4 }}>Treatment</div>
+                    <select style={inp} value={form.treatment} onChange={e => set("treatment", e.target.value)}>
+                      <option value="">Select treatment…</option>
+                      <option value="Heated">Heated</option>
+                      <option value="Unheated">Unheated</option>
+                      <option value="Natural">Natural</option>
+                    </select>
+                  </div>
+                </div>
               </div>
 
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }}>
