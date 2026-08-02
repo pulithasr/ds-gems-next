@@ -67,6 +67,10 @@ export default function BlogPage() {
         @media(min-width:641px){.ds-hamburger{display:none!important}}
         .post-card:hover { box-shadow: 0 8px 32px rgba(6,64,43,0.15) !important; transform: translateY(-3px) !important; }
         .post-card { transition: box-shadow 0.2s, transform 0.2s; }
+        .featured-grid { display: grid; grid-template-columns: 1fr 1fr; }
+        @media(max-width:640px){
+          .featured-grid { grid-template-columns: 1fr !important; }
+        }
       `}</style>
 
       {/* Navbar */}
@@ -118,7 +122,7 @@ export default function BlogPage() {
             {/* Featured post */}
             {featured && (
               <Link href={`/blog/${featured.slug}`} style={{ textDecoration: "none" }}>
-                <div className="post-card" style={{ background: "#fff", borderRadius: 20, overflow: "hidden", border: "1px solid #d8e8df", marginBottom: 40, display: "grid", gridTemplateColumns: "1fr 1fr", cursor: "pointer" }}>
+                <div className="post-card featured-grid" style={{ background: "#fff", borderRadius: 20, overflow: "hidden", border: "1px solid #d8e8df", marginBottom: 40, cursor: "pointer" }}>
                   <div style={{ background: "#06402b", minHeight: 300, display: "flex", alignItems: "center", justifyContent: "center", position: "relative", overflow: "hidden" }}>
                     {featured.coverImage ? (
                       <img src={featured.coverImage} alt={featured.title} style={{ width: "100%", height: "100%", objectFit: "cover", position: "absolute", inset: 0 }} />
