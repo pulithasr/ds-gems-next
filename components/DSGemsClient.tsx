@@ -245,9 +245,37 @@ function Modal({ gem, onClose, displayCurrency, usdToLkr }: { gem: any, onClose:
               </div>
             ))}
           </div>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <span style={{ fontSize: 24, fontWeight: 700, color: "#06402b" }}>{formatPrice(gem, displayCurrency, usdToLkr)}</span>
-            <a href={`mailto:dsgemslk@gmail.com?subject=${encodeURIComponent(`Enquiry: ${gem.name}`)}&body=${encodeURIComponent(`Hi, I'm interested in the ${gem.name} (${formatPrice(gem, displayCurrency, usdToLkr)}). Could you share more details?`)}`} style={{ background: "#06402b", border: "none", borderRadius: 20, padding: "10px 26px", cursor: "pointer", fontSize: 15, color: "#a8f0c8", fontFamily: "sans-serif", textDecoration: "none", display: "inline-block" }}>Enquire Now</a>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+            <span style={{
+              fontSize: gem.priceOnInquiry ? 16 : 24,
+              fontWeight: 700,
+              color: "#06402b",
+              whiteSpace: "nowrap",
+              flexShrink: 1,
+              minWidth: 0,
+              overflow: "hidden",
+              textOverflow: "ellipsis"
+            }}>
+              {formatPrice(gem, displayCurrency, usdToLkr)}
+            </span>
+            <a href={`mailto:dsgemslk@gmail.com?subject=${encodeURIComponent(`Enquiry: ${gem.name}`)}&body=${encodeURIComponent(`Hi, I'm interested in the ${gem.name} (${formatPrice(gem, displayCurrency, usdToLkr)}). Could you share more details?`)}`}
+              style={{
+                background: "#06402b",
+                border: "none",
+                borderRadius: 20,
+                padding: "10px 26px",
+                cursor: "pointer",
+                fontSize: 15,
+                color: "#a8f0c8",
+                fontFamily: "sans-serif",
+                textDecoration: "none",
+                display: "inline-block",
+                flexShrink: 0,
+                whiteSpace: "nowrap"
+              }}
+            >
+              Enquire Now
+            </a>
           </div>
         </div>
       </div>
