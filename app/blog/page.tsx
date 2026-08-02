@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { db } from "@/lib/firebase";
-import { collection, onSnapshot, query, orderBy} from "firebase/firestore";
+import { collection, onSnapshot, query, orderBy, where } from "firebase/firestore";
 import Link from "next/link";
 
 function DiamondIcon() {
@@ -27,6 +27,7 @@ export default function BlogPage() {
   useEffect(() => {
     const q = query(
       collection(db, "blog_posts"),
+      where("published", "==", true),
       orderBy("createdAt", "desc")
     );
     const unsub = onSnapshot(
@@ -50,6 +51,7 @@ export default function BlogPage() {
     return () => unsub();
   }, []);
 
+  
   const filtered = posts
   .filter(p => p.published)
   .filter(p => category === "All" || p.category === category);
