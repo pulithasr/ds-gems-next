@@ -69,7 +69,8 @@ function formatPrice(gem: any, displayCurrency: "USD" | "LKR" = "USD", usdToLkr:
   if (storedCurrency === "LKR" && displayCurrency === "USD") converted = num / rate;
 
   const rounded = displayCurrency === "LKR" ? Math.round(converted) : Math.round(converted * 100) / 100;
-  return `${displayCurrency} ${rounded.toLocaleString("en-US")}`;
+  const symbol = displayCurrency === "USD" ? "$" : "Rs. ";
+  return `${symbol}${rounded.toLocaleString("en-US")}`;
 }
 
 function DiamondIcon() {
@@ -98,8 +99,24 @@ function GemPlaceholder({ category, size = 72 }: { category: string, size?: numb
 function GemCard({ gem, onClick, displayCurrency, usdToLkr }: { gem: any, onClick: (gem: any) => void, displayCurrency: "USD" | "LKR", usdToLkr: number | null }) {
   const colors = GEM_COLORS[gem.category as keyof typeof GEM_COLORS]|| GEM_COLORS.Emerald;
   const hasImage = gem.images && gem.images.length > 0;
+
+  const weightNum = parseFloat(gem.weight);
+  const priceStr = formatPrice(gem, displayCurrency, usdToLkr);
+  const showPerCarat = !gem.priceOnInquiry && !isNaN(weightNum) && weightNum > 0 && gem.priceValue;
+  let perCaratStr = "";
+  if (showPerCarat) {
+    const rate = usdToLkr || 300;
+    const num = Number(gem.priceValue || 0);
+    const storedCurrency = gem.currency === "LKR" ? "LKR" : "USD";
+    let converted = num;
+    if (storedCurrency === "USD" && displayCurrency === "LKR") converted = num * rate;
+    if (storedCurrency === "LKR" && displayCurrency === "USD") converted = num / rate;
+    const perCarat = converted / weightNum;
+    perCaratStr = `${displayCurrency === "USD" ? "$" : "Rs. "}${(displayCurrency === "LKR" ? Math.round(perCarat) : Math.round(perCarat * 100) / 100).toLocaleString("en-US")}/ct`;
+  }
+
   return (
-    <div onClick={() => onClick(gem)} style={{ background: "#fff", border: "1px solid #d8e8df", borderRadius: 16, overflow: "hidden", cursor: "pointer", transition: "box-shadow 0.2s, transform 0.2s", position: "relative", fontFamily: "'Cormorant Garamond', Georgia, serif" }}
+    <div onClick={() => onClick(gem)} style={{ background: "#fff", border: "1px solid #d8e8df", borderRadius: 16, overflow: "hidden", cursor: "pointer", transition: "box-shadow 0.2s, transform 0.2s", position: "relative", fontFamily: "'Cormorant Garamond', Georgia, serif", height: "100%", display: "flex", flexDirection: "column" }}
       onMouseEnter={e => { e.currentTarget.style.boxShadow = "0 8px 32px rgba(6,64,43,0.15)"; e.currentTarget.style.transform = "translateY(-3px)"; }}
       onMouseLeave={e => { e.currentTarget.style.boxShadow = "none"; e.currentTarget.style.transform = "translateY(0)"; }}>
       <div style={{ height: 200, background: colors.bg, position: "relative", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -121,16 +138,15 @@ function GemCard({ gem, onClick, displayCurrency, usdToLkr }: { gem: any, onClic
           : gem.featured && <span style={{ position: "absolute", top: 12, right: 12, background: "rgba(168,240,200,0.15)", color: "#a8f0c8", fontSize: 11, fontFamily: "sans-serif", padding: "3px 10px", borderRadius: 20, letterSpacing: 1, border: "1px solid rgba(168,240,200,0.3)" }}>Featured</span>
         }
       </div>
-      <div style={{ padding: "16px 18px 18px" }}>
-        <div style={{ fontSize: 11, color: "#888", fontFamily: "sans-serif", letterSpacing: 2, textTransform: "uppercase", marginBottom: 4 }}>{gem.origin} · {gem.category}</div>
-        <div style={{ fontSize: 20, fontWeight: 600, color: "#06402b", marginBottom: 6, lineHeight: 1.2 }}>{gem.name}</div>
-        <div style={{ display: "flex", gap: 16, marginBottom: 10 }}>
-          <span style={{ fontSize: 13, color: "#555", fontFamily: "sans-serif" }}>{gem.weight}</span>
-          <span style={{ fontSize: 13, color: "#555", fontFamily: "sans-serif" }}>{gem.treatment}</span>
+      <div style={{ padding: "18px 18px 20px", textAlign: "center", flex: 1, display: "flex", flexDirection: "column" }}>
+        <div style={{ fontSize: 11, color: "#888", fontFamily: "sans-serif", letterSpacing: 2, textTransform: "uppercase", marginBottom: 6 }}>{gem.origin} · {gem.category}</div>
+        <div style={{ fontSize: 19, fontWeight: 600, color: "#06402b", marginBottom: 8, lineHeight: 1.25 }}>{gem.name}</div>
+        <div style={{ fontSize: 14, color: "#666", fontFamily: "sans-serif", marginBottom: 10 }}>{gem.weight}</div>
+        <div style={{ fontSize: 13, color: "#888", fontFamily: "sans-serif", marginBottom: "auto" }}>
+          {showPerCarat ? `${perCaratStr} · ${gem.clarity}` : gem.clarity}
         </div>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid #eef4f1", paddingTop: 10 }}>
-          <span style={{ fontSize: 18, fontWeight: 700, color: "#06402b" }}>{formatPrice(gem, displayCurrency, usdToLkr)}</span>
-          <span style={{ fontSize: 12, color: "#06402b", fontFamily: "sans-serif", border: "1px solid #06402b", borderRadius: 20, padding: "4px 14px" }}>View Details</span>
+        <div style={{ fontSize: 18, fontWeight: 700, color: "#06402b", marginTop: 10 }}>
+          {priceStr}
         </div>
       </div>
     </div>
