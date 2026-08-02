@@ -97,6 +97,7 @@ function GemPlaceholder({ category, size = 72 }: { category: string, size?: numb
 
 // ─── GEM CARD ─────────────────────────────────────────────────────────────────
 function GemCard({ gem, onClick, displayCurrency, usdToLkr }: { gem: any, onClick: (gem: any) => void, displayCurrency: "USD" | "LKR", usdToLkr: number | null }) {
+  const [hovered, setHovered] = useState(false);
   const colors = GEM_COLORS[gem.category as keyof typeof GEM_COLORS]|| GEM_COLORS.Emerald;
   const hasImage = gem.images && gem.images.length > 0;
 
@@ -116,9 +117,10 @@ function GemCard({ gem, onClick, displayCurrency, usdToLkr }: { gem: any, onClic
   }
 
   return (
-    <div onClick={() => onClick(gem)} style={{ background: "#fff", border: "1px solid #d8e8df", borderRadius: 16, overflow: "hidden", cursor: "pointer", transition: "box-shadow 0.2s, transform 0.2s", position: "relative", fontFamily: "'Cormorant Garamond', Georgia, serif", height: "100%", display: "flex", flexDirection: "column" }}
-      onMouseEnter={e => { e.currentTarget.style.boxShadow = "0 8px 32px rgba(6,64,43,0.15)"; e.currentTarget.style.transform = "translateY(-3px)"; }}
-      onMouseLeave={e => { e.currentTarget.style.boxShadow = "none"; e.currentTarget.style.transform = "translateY(0)"; }}>
+    <div onClick={() => onClick(gem)}
+      onMouseEnter={e => { e.currentTarget.style.boxShadow = "0 8px 32px rgba(6,64,43,0.15)"; e.currentTarget.style.transform = "translateY(-3px)"; setHovered(true); }}
+      onMouseLeave={e => { e.currentTarget.style.boxShadow = "none"; e.currentTarget.style.transform = "translateY(0)"; setHovered(false); }}
+      style={{ background: "#fff", border: "1px solid #d8e8df", borderRadius: 16, overflow: "hidden", cursor: "pointer", transition: "box-shadow 0.2s, transform 0.2s", position: "relative", fontFamily: "'Cormorant Garamond', Georgia, serif", height: "100%", display: "flex", flexDirection: "column" }}>
       <div style={{ height: 200, background: colors.bg, position: "relative", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
         {hasImage
           ? <img src={gem.images[0]} alt={gem.name} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
@@ -138,20 +140,42 @@ function GemCard({ gem, onClick, displayCurrency, usdToLkr }: { gem: any, onClic
           : gem.featured && <span style={{ position: "absolute", top: 12, right: 12, background: "rgba(168,240,200,0.15)", color: "#a8f0c8", fontSize: 11, fontFamily: "sans-serif", padding: "3px 10px", borderRadius: 20, letterSpacing: 1, border: "1px solid rgba(168,240,200,0.3)" }}>Featured</span>
         }
       </div>
-      <div style={{ padding: "18px 18px 20px", textAlign: "center", flex: 1, display: "flex", flexDirection: "column" }}>
+      <div style={{ padding: "18px 18px 0", textAlign: "center", flex: 1, display: "flex", flexDirection: "column" }}>
         <div style={{ fontSize: 11, color: "#888", fontFamily: "sans-serif", letterSpacing: 2, textTransform: "uppercase", marginBottom: 6 }}>{gem.origin} · {gem.category}</div>
         <div style={{ fontSize: 19, fontWeight: 600, color: "#06402b", marginBottom: 8, lineHeight: 1.25 }}>{gem.name}</div>
         <div style={{ fontSize: 14, color: "#666", fontFamily: "sans-serif", marginBottom: 10 }}>{gem.weight}</div>
-        <div style={{ fontSize: 13, color: "#888", fontFamily: "sans-serif", marginBottom: "auto" }}>
-          {showPerCarat ? `${perCaratStr} · ${gem.clarity}` : gem.clarity}
-        </div>
-        <div style={{ fontSize: 18, fontWeight: 700, color: "#06402b", marginTop: 10 }}>
+        <div style={{ fontSize: 18, fontWeight: 700, color: "#06402b", marginTop: "auto", marginBottom: 8 }}>
           {priceStr}
+        </div>
+
+        {/* Swap area: clarity/per-carat normally, full-width VIEW button on hover */}
+        <div style={{ position: "relative", height: 44, marginLeft: -18, marginRight: -18 }}>
+          <div style={{
+            position: "absolute", inset: 0,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            fontSize: 13, color: "#888", fontFamily: "sans-serif",
+            opacity: hovered ? 0 : 1,
+            transition: "opacity 0.2s ease"
+          }}>
+            {showPerCarat ? `${perCaratStr} · ${gem.clarity}` : gem.clarity}
+          </div>
+          <div style={{
+            position: "absolute", inset: 0,
+            background: "#06402b",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            opacity: hovered ? 1 : 0,
+            transition: "opacity 0.2s ease"
+          }}>
+            <span style={{ fontSize: 13, fontWeight: 500, color: "#ffffff", fontFamily: "sans-serif", letterSpacing: 2 }}>
+              VIEW MORE
+            </span>
+          </div>
         </div>
       </div>
     </div>
   );
 }
+
 
 // ─── GEM LIST ROW (mobile compact view) ──────────────────────────────────────
 function GemListRow({ gem, onClick, displayCurrency, usdToLkr }: { gem: any, onClick: (gem: any) => void, displayCurrency: "USD" | "LKR", usdToLkr: number | null }) {
