@@ -1222,19 +1222,185 @@ export default function DSGemsClient({ initialGems = [], initialPage = "home" }:
       )}
 
       {page === "about" && (
-        <div style={{ maxWidth: 780, margin: "60px auto", padding: "0 32px" }}>
-          <div style={{ fontSize: 12, color: "#888", letterSpacing: 3, textTransform: "uppercase", fontFamily: "sans-serif", marginBottom: 12 }}>About Us</div>
-          <h2 style={{ fontSize: 40, color: "#06402b", fontWeight: 700, marginBottom: 20 }}>DS Gems - Trusted by Dealers Worldwide</h2>
-          <p style={{ fontSize: 17, color: "#444", lineHeight: 1.8, fontFamily: "sans-serif", marginBottom: 18 }}>DS Gems is a trusted natural gemstone dealer operating across Sri Lanka and Thailand, connecting buyers worldwide with the finest certified gemstones at every stage, from rough to cut and polished.</p>
-          <p style={{ fontSize: 17, color: "#444", lineHeight: 1.8, fontFamily: "sans-serif", marginBottom: 18 }}>We specialise in all varieties of gemstones, with a strong focus on Blue Sapphires sourced directly from the gem-rich mines of Sri Lanka, one of the world's most renowned sapphire origins.</p>
-          <p style={{ fontSize: 17, color: "#444", lineHeight: 1.8, fontFamily: "sans-serif", marginBottom: 40 }}>Whether you are looking for rough stones, calibrated cuts, or fully polished gems, we offer transparent and reliable trading backed by years of hands-on expertise in the industry.</p>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 16 }}>
-            {[["Ethical Sourcing","Direct relationships with miners and reputable gem dealers"],["Certified Quality","Every gem independently verified by top gemological labs"],["Secure Trading","Safe, insured worldwide shipping with full documentation"],["Expert Guidance","Personal service from experienced gemologists"]].map(([t,d]) => (
-              <div key={t} style={{ background: "#f0f9f4", borderRadius: 14, padding: "18px 20px", border: "1px solid #d0eadd" }}>
-                <div style={{ fontSize: 15, fontWeight: 700, color: "#06402b", marginBottom: 6 }}>{t}</div>
-                <div style={{ fontSize: 13, color: "#555", fontFamily: "sans-serif", lineHeight: 1.6 }}>{d}</div>
+        <div style={{ background: "#f5faf7" }}>
+          <style>{`
+            @keyframes underlineGrow {
+              0%   { width: 0%; }
+              100% { width: 60px; }
+            }
+            @keyframes fadeUp {
+              0%   { opacity: 0; transform: translateY(14px); }
+              100% { opacity: 1; transform: translateY(0); }
+            }
+            .ds-fade-1 { animation: fadeUp 0.6s ease 0.05s both; }
+            .ds-fade-2 { animation: fadeUp 0.6s ease 0.2s both; }
+            .ds-fade-3 { animation: fadeUp 0.6s ease 0.35s both; }
+
+            .ds-about-underline {
+              display: block; height: 3px; background: #a8f0c8; margin-top: 10px;
+              animation: underlineGrow 0.8s ease 0.3s both;
+            }
+
+            .ds-photo-frame {
+              transition: transform 0.35s ease, box-shadow 0.35s ease;
+            }
+            .ds-photo-wrap:hover .ds-photo-frame {
+              transform: rotate(0deg) scale(1.015);
+              box-shadow: 0 30px 70px rgba(6,64,43,0.3);
+            }
+
+            .ds-value-card {
+              transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+            }
+            .ds-value-card:hover {
+              transform: translateY(-4px);
+              box-shadow: 0 14px 34px rgba(6,64,43,0.12);
+              border-color: #a8f0c8 !important;
+            }
+
+            .ds-step-dot { transition: transform 0.2s ease; }
+            .ds-step:hover .ds-step-dot { transform: scale(1.25); }
+
+            .ds-gem-pill {
+              transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+            }
+            .ds-gem-pill:hover {
+              background: #06402b !important;
+              color: #a8f0c8 !important;
+              transform: translateY(-2px);
+            }
+
+            @media (max-width: 760px) {
+              .ds-about-hero-grid { grid-template-columns: 1fr !important; }
+              .ds-steps-row { flex-direction: column !important; }
+              .ds-steps-row .ds-step-line { display: none !important; }
+            }
+          `}</style>
+
+          {/* ── HERO ── */}
+          <div className="ds-about-hero-grid" style={{ maxWidth: 1200, margin: "0 auto", padding: "72px 32px 60px", display: "grid", gridTemplateColumns: "1.05fr 0.95fr", gap: 52, alignItems: "center" }}>
+            <div className="ds-fade-1">
+              <div style={{ fontSize: 12, color: "#06402b", letterSpacing: 3, textTransform: "uppercase", fontFamily: "sans-serif", fontWeight: 600, marginBottom: 16 }}>Est. Sri Lanka · Trading Worldwide</div>
+              <h1 style={{ fontSize: "clamp(38px, 5vw, 58px)", color: "#06402b", fontWeight: 700, lineHeight: 1.08, margin: "0 0 4px" }}>
+                Every stone carries<br />the mountain it came from.
+              </h1>
+              <span className="ds-about-underline" />
+              <p style={{ fontSize: 17, color: "#444", lineHeight: 1.75, fontFamily: "sans-serif", maxWidth: 480, margin: "22px 0 28px" }}>
+                DS Gems trades in natural gemstones sourced across Sri Lanka and Thailand — from rough stone to final cut — for collectors and dealers who care where a gem has been before it reaches them.
+              </p>
+              <button onClick={() => setPage("contact")} style={{ background: "#06402b", color: "#a8f0c8", border: "none", borderRadius: 30, padding: "13px 30px", fontSize: 14, fontFamily: "sans-serif", fontWeight: 600, letterSpacing: 1, cursor: "pointer" }}>
+                Start a Conversation
+              </button>
+            </div>
+
+            {/* Photo hero with interactive tilt */}
+            <div className="ds-fade-2 ds-photo-wrap" style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+              <div style={{ position: "relative", width: "100%", maxWidth: 380 }}>
+                <div style={{
+                  position: "absolute",
+                  inset: "-14px",
+                  background: "linear-gradient(135deg, #06402b, #1a3a6b)",
+                  borderRadius: 24,
+                  opacity: 0.15,
+                  transform: "rotate(-3deg)"
+                }} />
+                <img
+                  className="ds-photo-frame"
+                  src="/about-hero.jpg"
+                  alt="Natural sapphire from Sri Lanka"
+                  style={{
+                    position: "relative",
+                    width: "100%",
+                    height: 340,
+                    objectFit: "cover",
+                    borderRadius: 20,
+                    boxShadow: "0 24px 60px rgba(6,64,43,0.2)",
+                    border: "6px solid #fff",
+                    display: "block"
+                  }}
+                />
+                
               </div>
-            ))}
+            </div>
+          </div>
+
+          {/* ── GEM TYPES (interactive — links to filtered storefront) ── */}
+          <div className="ds-fade-3" style={{ maxWidth: 1100, margin: "0 auto", padding: "0 32px 56px", textAlign: "center" }}>
+            <div style={{ fontSize: 12, color: "#888", letterSpacing: 2, textTransform: "uppercase", fontFamily: "sans-serif", marginBottom: 14 }}>Explore What We Trade</div>
+            <div style={{ display: "flex", justifyContent: "center", gap: 12, flexWrap: "wrap" }}>
+              {["Sapphire", "Ruby", "Emerald", "Alexandrite", "Tanzanite"].map(c => (
+                <button
+                  key={c}
+                  className="ds-gem-pill"
+                  onClick={() => { setPage("home"); setCategory(c); }}
+                  style={{ background: "#fff", color: "#06402b", border: "1px solid #06402b", borderRadius: 22, padding: "9px 22px", fontSize: 14, fontFamily: "sans-serif", fontWeight: 600, cursor: "pointer" }}
+                >
+                  {c}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* ── PROVENANCE / PROCESS ── */}
+          <div style={{ background: "#06402b", padding: "56px 32px" }}>
+            <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+              <div style={{ fontSize: 12, color: "#a8f0c8", letterSpacing: 3, textTransform: "uppercase", fontFamily: "sans-serif", fontWeight: 600, marginBottom: 8, textAlign: "center" }}>How a Gem Reaches You</div>
+              <h2 style={{ fontSize: 30, color: "#fff", fontWeight: 700, textAlign: "center", marginBottom: 44 }}>Four Steps, One Continuous Chain of Trust</h2>
+              <div className="ds-steps-row" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", position: "relative" }}>
+                <div className="ds-step-line" style={{ position: "absolute", top: 10, left: "12%", right: "12%", height: 1, background: "rgba(168,240,200,0.25)" }} />
+                {[
+                  ["Mine", "Sourced directly from Sri Lanka's gem-rich pits and Thailand's trading houses."],
+                  ["Hand-Select", "Each stone assessed in person for color, clarity, and cut potential."],
+                  ["Certify", "Verified by recognised gemological labs before it's ever listed."],
+                  ["Ship Worldwide", "Insured, documented delivery to collectors and dealers globally."],
+                ].map(([title, desc], i) => (
+                  <div key={title} className="ds-step" style={{ flex: 1, textAlign: "center", padding: "0 14px", position: "relative" }}>
+                    <div className="ds-step-dot" style={{ width: 20, height: 20, borderRadius: "50%", background: "#a8f0c8", margin: "0 auto 18px", position: "relative", zIndex: 1 }} />
+                    <div style={{ color: "#a8f0c8", fontSize: 11, fontFamily: "sans-serif", letterSpacing: 2, marginBottom: 6 }}>{`0${i + 1}`}</div>
+                    <div style={{ color: "#fff", fontSize: 18, fontWeight: 700, marginBottom: 8 }}>{title}</div>
+                    <div style={{ color: "rgba(255,255,255,0.6)", fontSize: 13, fontFamily: "sans-serif", lineHeight: 1.6 }}>{desc}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* ── STORY ── */}
+          <div style={{ maxWidth: 780, margin: "0 auto", padding: "64px 32px" }}>
+            <p style={{ fontSize: 20, color: "#06402b", lineHeight: 1.7, fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 500, textAlign: "center" }}>
+              "We specialise in every variety of natural gemstone, with a particular focus on Blue Sapphires drawn from Sri Lanka's mines — one of the most storied sapphire origins on earth. Whether you need rough stone, calibrated cuts, or fully polished gems, the trade stays transparent from the first hand to yours."
+            </p>
+          </div>
+
+          {/* ── VALUES ── */}
+          <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 32px 72px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))", gap: 20 }}>
+              {[
+                ["Ethical Sourcing", "Direct relationships with miners and reputable gem dealers, not anonymous supply chains."],
+                ["Certified Quality", "Every gem independently verified by top gemological labs before sale."],
+                ["Secure Trading", "Insured, fully documented worldwide shipping on every transaction."],
+                ["Expert Guidance", "Personal service from gemologists who've handled thousands of stones."],
+              ].map(([t, d]) => (
+                <div key={t} className="ds-value-card" style={{ background: "#fff", borderRadius: 16, padding: "26px 24px", border: "1px solid #e0ede7" }}>
+                  <div style={{ width: 34, height: 34, borderRadius: "50%", background: "#f0f9f4", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 16 }}>
+                    <div style={{ width: 10, height: 10, borderRadius: 2, background: "#06402b", transform: "rotate(45deg)" }} />
+                  </div>
+                  <div style={{ fontSize: 17, fontWeight: 700, color: "#06402b", marginBottom: 8 }}>{t}</div>
+                  <div style={{ fontSize: 14, color: "#555", fontFamily: "sans-serif", lineHeight: 1.65 }}>{d}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* ── CLOSING CTA ── */}
+          <div style={{ background: "linear-gradient(135deg, #06402b, #0a5c3e)", padding: "56px 32px", textAlign: "center" }}>
+            <h2 style={{ color: "#fff", fontSize: 28, fontWeight: 700, marginBottom: 12 }}>Looking for a Specific Stone?</h2>
+            <p style={{ color: "rgba(255,255,255,0.7)", fontFamily: "sans-serif", fontSize: 15, maxWidth: 460, margin: "0 auto 24px", lineHeight: 1.7 }}>
+              Tell us what you're after and we'll help you find it — from a single loose stone to a full parcel.
+            </p>
+            <button onClick={() => setPage("contact")} style={{ background: "#a8f0c8", color: "#06402b", border: "none", borderRadius: 30, padding: "13px 30px", fontSize: 14, fontFamily: "sans-serif", fontWeight: 700, letterSpacing: 1, cursor: "pointer" }}>
+              Get in Touch
+            </button>
           </div>
         </div>
       )}
