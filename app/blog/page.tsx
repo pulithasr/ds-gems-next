@@ -29,17 +29,24 @@ export default function BlogPage() {
       collection(db, "blog_posts"),
       orderBy("createdAt", "desc")
     );
-    const unsub = onSnapshot(q, (snap) => {
-      setPosts(snap.docs.map(d => {
-        const data = d.data();
-        return {
-          ...data,
-          firestoreId: d.id,
-          createdAt: data.createdAt?.toDate?.()?.toISOString() ?? null,
-        };
-      }));
-      setLoading(false);
-    });
+    const unsub = onSnapshot(
+      q,
+      (snap) => {
+        setPosts(snap.docs.map(d => {
+          const data = d.data();
+          return {
+            ...data,
+            firestoreId: d.id,
+            createdAt: data.createdAt?.toDate?.()?.toISOString() ?? null,
+          };
+        }));
+        setLoading(false);
+      },
+      (error) => {
+        console.error("Blog fetch error:", error);
+        setLoading(false);
+      }
+    );
     return () => unsub();
   }, []);
 
