@@ -1407,9 +1407,18 @@ export default function DSGemsClient({ initialGems = [], initialPage = "home" }:
 
       {page === "contact" && (
         <div style={{ maxWidth: 1000, margin: "60px auto", padding: "0 32px" }}>
+          <style>{`
+            @keyframes fadeUp {
+              0%   { opacity: 0; transform: translateY(14px); }
+              100% { opacity: 1; transform: translateY(0); }
+            }
+            .ds-contact-fade-1 { animation: fadeUp 0.6s ease 0.05s both; }
+            .ds-contact-fade-2 { animation: fadeUp 0.6s ease 0.2s both; }
+          `}</style>
+
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 56, alignItems: "center" }}>
 
-            <div>
+            <div className="ds-contact-fade-1">
               <div style={{ fontSize: 12, color: "#888", letterSpacing: 3, textTransform: "uppercase", fontFamily: "sans-serif", marginBottom: 12 }}>Get in Touch</div>
               <h2 style={{ fontSize: 40, color: "#06402b", fontWeight: 700, marginBottom: 20 }}>Contact DS Gems</h2>
               <p style={{ fontSize: 16, color: "#555", fontFamily: "sans-serif", lineHeight: 1.7, marginBottom: 32 }}>For enquiries, pricing, certificates, or to arrange a viewing our team is ready to assist international buyers and dealers.</p>
@@ -1434,7 +1443,7 @@ export default function DSGemsClient({ initialGems = [], initialPage = "home" }:
               </div>
             </div>
 
-            <div style={{ position: "relative" }}>
+            <div className="ds-contact-fade-2" style={{ position: "relative" }}>
               <div style={{
                 position: "absolute",
                 inset: "-14px",
