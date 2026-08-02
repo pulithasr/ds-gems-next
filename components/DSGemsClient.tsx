@@ -58,6 +58,20 @@ const BADGE_STYLES = {
   Sold:          { bg: "#444",    color: "#ccc" },
 };
 
+function formatPrice(gem: any, displayCurrency: "USD" | "LKR" = "USD", usdToLkr: number | null = 300) {
+  if (gem.priceOnInquiry) return "Price Upon Inquiry";
+  const rate = usdToLkr || 300;
+  const num = Number(gem.priceValue || 0);
+  const storedCurrency = gem.currency === "LKR" ? "LKR" : "USD";
+
+  let converted = num;
+  if (storedCurrency === "USD" && displayCurrency === "LKR") converted = num * rate;
+  if (storedCurrency === "LKR" && displayCurrency === "USD") converted = num / rate;
+
+  const rounded = displayCurrency === "LKR" ? Math.round(converted) : Math.round(converted * 100) / 100;
+  return `${displayCurrency} ${rounded.toLocaleString("en-US")}`;
+}
+
 function DiamondIcon() {
   return (
     <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
@@ -81,7 +95,7 @@ function GemPlaceholder({ category, size = 72 }: { category: string, size?: numb
 }
 
 // ─── GEM CARD ─────────────────────────────────────────────────────────────────
-function GemCard({ gem, onClick }: { gem: any, onClick: (gem: any) => void }) {
+function GemCard({ gem, onClick, displayCurrency, usdToLkr }: { gem: any, onClick: (gem: any) => void, displayCurrency: "USD" | "LKR", usdToLkr: number | null }) {
   const colors = GEM_COLORS[gem.category as keyof typeof GEM_COLORS]|| GEM_COLORS.Emerald;
   const hasImage = gem.images && gem.images.length > 0;
   return (
@@ -115,7 +129,7 @@ function GemCard({ gem, onClick }: { gem: any, onClick: (gem: any) => void }) {
           <span style={{ fontSize: 13, color: "#555", fontFamily: "sans-serif" }}>{gem.treatment}</span>
         </div>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid #eef4f1", paddingTop: 10 }}>
-          <span style={{ fontSize: 18, fontWeight: 700, color: "#06402b" }}>{gem.price}</span>
+          <span style={{ fontSize: 18, fontWeight: 700, color: "#06402b" }}>{formatPrice(gem, displayCurrency, usdToLkr)}</span>
           <span style={{ fontSize: 12, color: "#06402b", fontFamily: "sans-serif", border: "1px solid #06402b", borderRadius: 20, padding: "4px 14px" }}>View Details</span>
         </div>
       </div>
@@ -124,7 +138,7 @@ function GemCard({ gem, onClick }: { gem: any, onClick: (gem: any) => void }) {
 }
 
 // ─── GEM LIST ROW (mobile compact view) ──────────────────────────────────────
-function GemListRow({ gem, onClick }: { gem: any, onClick: (gem: any) => void }) {
+function GemListRow({ gem, onClick, displayCurrency, usdToLkr }: { gem: any, onClick: (gem: any) => void, displayCurrency: "USD" | "LKR", usdToLkr: number | null }) {
   const colors = GEM_COLORS[gem.category as keyof typeof GEM_COLORS] || GEM_COLORS.Emerald;
   const hasImage = gem.images && gem.images.length > 0;
   return (
@@ -135,7 +149,7 @@ function GemListRow({ gem, onClick }: { gem: any, onClick: (gem: any) => void })
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontSize: 11, color: "#888", fontFamily: "sans-serif", letterSpacing: 1, textTransform: "uppercase" }}>{gem.origin} · {gem.category}</div>
         <div style={{ fontSize: 17, fontWeight: 600, color: "#06402b", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{gem.name}</div>
-        <div style={{ fontSize: 15, fontWeight: 700, color: "#06402b", marginTop: 2 }}>{gem.price}</div>
+        <div style={{ fontSize: 15, fontWeight: 700, color: "#06402b", marginTop: 2 }}>{formatPrice(gem, displayCurrency, usdToLkr)}</div>
       </div>
       {gem.badge && (
         <span style={{ background: BADGE_STYLES[gem.badge as keyof typeof BADGE_STYLES]?.bg || "#06402b", color: BADGE_STYLES[gem.badge as keyof typeof BADGE_STYLES]?.color || "#a8f0c8", fontSize: 10, fontFamily: "sans-serif", fontWeight: 600, padding: "3px 8px", borderRadius: 20, letterSpacing: 0.5, textTransform: "uppercase", flexShrink: 0 }}>{gem.badge}</span>
@@ -145,7 +159,7 @@ function GemListRow({ gem, onClick }: { gem: any, onClick: (gem: any) => void })
 }
 
 // ─── DETAIL MODAL ─────────────────────────────────────────────────────────────
-function Modal({ gem, onClose }: { gem: any, onClose: () => void }) {
+function Modal({ gem, onClose, displayCurrency, usdToLkr }: { gem: any, onClose: () => void, displayCurrency: "USD" | "LKR", usdToLkr: number | null }) {
   const [activeImg, setActiveImg] = useState(0);
   const [showVideo, setShowVideo] = useState(false);
   if (!gem) return null;
@@ -216,8 +230,8 @@ function Modal({ gem, onClose }: { gem: any, onClose: () => void }) {
             ))}
           </div>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <span style={{ fontSize: 24, fontWeight: 700, color: "#06402b" }}>{gem.price}</span>
-            <a href={`mailto:dsgemslk@gmail.com?subject=${encodeURIComponent(`Enquiry: ${gem.name}`)}&body=${encodeURIComponent(`Hi, I'm interested in the ${gem.name} (${gem.price}). Could you share more details?`)}`} style={{ background: "#06402b", border: "none", borderRadius: 20, padding: "10px 26px", cursor: "pointer", fontSize: 15, color: "#a8f0c8", fontFamily: "sans-serif", textDecoration: "none", display: "inline-block" }}>Enquire Now</a>
+            <span style={{ fontSize: 24, fontWeight: 700, color: "#06402b" }}>{formatPrice(gem, displayCurrency, usdToLkr)}</span>
+            <a href={`mailto:dsgemslk@gmail.com?subject=${encodeURIComponent(`Enquiry: ${gem.name}`)}&body=${encodeURIComponent(`Hi, I'm interested in the ${gem.name} (${formatPrice(gem, displayCurrency, usdToLkr)}). Could you share more details?`)}`} style={{ background: "#06402b", border: "none", borderRadius: 20, padding: "10px 26px", cursor: "pointer", fontSize: 15, color: "#a8f0c8", fontFamily: "sans-serif", textDecoration: "none", display: "inline-block" }}>Enquire Now</a>
           </div>
         </div>
       </div>
@@ -230,7 +244,7 @@ function Modal({ gem, onClose }: { gem: any, onClose: () => void }) {
 
 
 function AdminPanel({ gems, onAdd, onUpdate, onRemove, onClose }: { gems: any[], onAdd: (g: any) => void, onUpdate: (g: any) => void, onRemove: (id: string) => void, onClose: () => void }) {
-  const emptyForm: { name: string; origin: string; weight: string; clarity: string; treatment: string; price: string; category: string; description: string; badge: string; featured: boolean; images: string[]; video: string } = { name: "", origin: "", weight: "", clarity: "", treatment: "", price: "", category: "Sapphire", description: "", badge: "", featured: false, images: [], video: "" };
+  const emptyForm: { name: string; origin: string; weight: string; clarity: string; treatment: string; priceOnInquiry: boolean; currency: string; priceValue: string; category: string; description: string; badge: string; featured: boolean; images: string[]; video: string } = { name: "", origin: "", weight: "", clarity: "", treatment: "", priceOnInquiry: false, currency: "USD", priceValue: "", category: "Sapphire", description: "", badge: "", featured: false, images: [], video: "" };
   const [form, setForm] = useState(emptyForm);
   const [uploading, setUploading] = useState(false);
   const [msg, setMsg] = useState("");
@@ -330,13 +344,18 @@ function AdminPanel({ gems, onAdd, onUpdate, onRemove, onClose }: { gems: any[],
   };
 
   const handleSubmit = () => {
-    if (!form.name || !form.price) { setMsg("Name and Price are required."); return; }
+    if (!form.name || (!form.priceOnInquiry && !form.priceValue)) { setMsg("Name and Price are required."); return; }
     if (editingId) { onUpdate({ ...form, firestoreId: editingId }); setEditingId(null); setMsg("Listing updated ✓"); }
     else { onAdd({ ...form, id: Date.now() }); setMsg("Gem added ✓"); }
     setForm(emptyForm); setTab("manage");
   };
 
-  const startEdit = (g: any) => { setForm({ ...g }); setEditingId(g.firestoreId); setTab("add"); setMsg(""); };
+  const startEdit = (g: any) => {
+    setForm({ ...emptyForm, ...g, priceValue: g.priceValue ?? "" });
+    setEditingId(g.firestoreId);
+    setTab("add");
+    setMsg("");
+  };
 
   const inp: React.CSSProperties = { fontFamily: "sans-serif", fontSize: 14, border: "1px solid #cce0d4", borderRadius: 8, padding: "8px 12px", width: "100%", color: "#1a3a2a", outline: "none", boxSizing: "border-box", background: "#f8fdfb" };
 
@@ -386,7 +405,7 @@ function AdminPanel({ gems, onAdd, onUpdate, onRemove, onClose }: { gems: any[],
 
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }}>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }}>
-                  {[["name","Gem Name *"],["origin","Origin"],["weight","Weight (e.g. 2.5 ct)"],["clarity","Clarity"],["price","Price * (e.g. USD 3,200)"]].map(([k,lbl]) => (
+                  {[["name","Gem Name *"],["origin","Origin"],["weight","Weight (e.g. 2.5 ct)"],["clarity","Clarity"]].map(([k,lbl]) => (
                     <div key={k}><div style={{ fontSize: 12, color: "#666", marginBottom: 4 }}>{lbl}</div><input style={inp} value={(form as any)[k]} onChange={e => set(k, e.target.value)} placeholder={lbl} /></div>
                   ))}
                   <div>
@@ -399,6 +418,29 @@ function AdminPanel({ gems, onAdd, onUpdate, onRemove, onClose }: { gems: any[],
                     </select>
                   </div>
                 </div>
+              </div>
+
+
+              <div style={{ marginBottom: 10 }}>
+                <div style={{ fontSize: 12, color: "#666", marginBottom: 4 }}>Price</div>
+                <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, marginBottom: 6, cursor: "pointer" }}>
+                  <input type="checkbox" checked={form.priceOnInquiry} onChange={e => set("priceOnInquiry", e.target.checked)} />
+                  Price Upon Inquiry
+                </label>
+                {!form.priceOnInquiry && (
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <select style={{ ...inp, width: 90 }} value={form.currency} onChange={e => set("currency", e.target.value)}>
+                      <option value="USD">USD</option>
+                      <option value="LKR">LKR</option>
+                    </select>
+                    <input
+                      style={inp}
+                      value={form.priceValue ? Number(form.priceValue).toLocaleString("en-US") : ""}
+                      onChange={e => set("priceValue", e.target.value.replace(/[^0-9]/g, ""))}
+                      placeholder="3,200"
+                    />
+                  </div>
+                )}
               </div>
 
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }}>
@@ -480,7 +522,7 @@ function AdminPanel({ gems, onAdd, onUpdate, onRemove, onClose }: { gems: any[],
                     </div>
                     <div style={{ flex: 1 }}>
                       <div style={{ fontSize: 14, fontWeight: 600, color: "#1a3a2a" }}>{g.name}</div>
-                      <div style={{ fontSize: 12, color: "#888" }}>{g.category} · {g.price} · {g.images?.length||0} photo(s){g.video ? " · video ✓" : ""}</div>
+                      <div style={{ fontSize: 12, color: "#888" }}>{g.category} · {formatPrice(g)} · {g.images?.length||0} photo(s){g.video ? " · video ✓" : ""}</div>
                     </div>
                     <div style={{ display: "flex", gap: 8 }}>
                       <button onClick={() => startEdit(g)} style={{ background: "none", border: "1px solid #06402b", borderRadius: 20, padding: "5px 14px", color: "#06402b", fontSize: 12, cursor: "pointer" }}>Edit</button>
@@ -837,6 +879,9 @@ export default function DSGemsClient({ initialGems = [], initialPage = "home" }:
   const [page, setPage] = useState(initialPage);
   const [menuOpen, setMenuOpen] = useState(false);
   const [viewMode, setViewMode] = useState<"detailed" | "list">("detailed");
+  const [displayCurrency, setDisplayCurrency] = useState<"USD" | "LKR">("USD");
+  const [usdToLkr, setUsdToLkr] = useState<number | null>(null);
+
 
   useEffect(() => {
     const handleResize = () => { if (window.innerWidth > 640) setViewMode("detailed"); };
@@ -844,6 +889,15 @@ export default function DSGemsClient({ initialGems = [], initialPage = "home" }:
     handleResize();
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+  
+
+  useEffect(() => {
+    fetch("https://api.frankfurter.app/latest?from=USD&to=LKR")
+      .then(res => res.json())
+      .then(data => setUsdToLkr(data.rates.LKR))
+      .catch(() => setUsdToLkr(300)); // fallback rate if API fails
+  }, []);
+
 
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const treatments = ["All", ...Array.from(new Set(gems.map(g => g.treatment).filter(Boolean)))];
@@ -905,6 +959,9 @@ export default function DSGemsClient({ initialGems = [], initialPage = "home" }:
                 ? <Link key={p} href={href} style={{ color: "rgba(168,240,200,0.55)", fontSize: 15, textDecoration: "none", textTransform: "capitalize", fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 600, letterSpacing: 1 }}>{p}</Link>
                 : <button key={p} onClick={() => setPage(p)} style={{ background: "none", border: "none", color: page===p ? "#a8f0c8" : "rgba(168,240,200,0.55)", fontSize: 15, cursor: "pointer", textTransform: "capitalize", fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 600, letterSpacing: 1, borderBottom: page===p ? "1.5px solid #a8f0c8" : "none", paddingBottom: 2 }}>{p}</button>
             ))}
+            <button onClick={() => setDisplayCurrency(c => c === "USD" ? "LKR" : "USD")} style={{ background: "rgba(168,240,200,0.12)", border: "1px solid rgba(168,240,200,0.3)", borderRadius: 20, padding: "6px 14px", color: "#a8f0c8", fontFamily: "sans-serif", fontSize: 12, cursor: "pointer", letterSpacing: 1 }}>
+              {displayCurrency === "USD" ? "USD → LKR" : "LKR → USD"}
+            </button>
             <button onClick={() => setAdminPrompt(true)} style={{ background: "rgba(168,240,200,0.12)", border: "1px solid rgba(168,240,200,0.3)", borderRadius: 20, padding: "6px 16px", color: "#a8f0c8", fontFamily: "sans-serif", fontSize: 12, cursor: "pointer", letterSpacing: 1 }}>Admin</button>
           </div>
         </div>
@@ -925,6 +982,9 @@ export default function DSGemsClient({ initialGems = [], initialPage = "home" }:
                 ? <Link key={p} href={href} onClick={() => setMenuOpen(false)} style={{ color: "rgba(168,240,200,0.7)", fontSize: 18, textDecoration: "none", textTransform: "capitalize", fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 600, letterSpacing: 1, padding: "10px 0", borderBottom: "1px solid rgba(168,240,200,0.1)", display: "block" }}>{p}</Link>
                 : <button key={p} onClick={() => { setPage(p); setMenuOpen(false); }} style={{ background: "none", border: "none", color: page===p ? "#a8f0c8" : "rgba(168,240,200,0.7)", fontSize: 18, cursor: "pointer", textTransform: "capitalize", fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 600, letterSpacing: 1, padding: "10px 0", textAlign: "left", borderBottom: "1px solid rgba(168,240,200,0.1)" }}>{p}</button>
             ))}
+            <button onClick={() => setDisplayCurrency(c => c === "USD" ? "LKR" : "USD")} style={{ background: "rgba(168,240,200,0.12)", border: "1px solid rgba(168,240,200,0.3)", borderRadius: 20, padding: "10px 16px", color: "#a8f0c8", fontFamily: "sans-serif", fontSize: 14, cursor: "pointer", letterSpacing: 1, marginTop: 8 }}>
+              {displayCurrency === "USD" ? "USD → LKR" : "LKR → USD"}
+            </button>
             <button onClick={() => { setAdminPrompt(true); setMenuOpen(false); }} style={{ background: "rgba(168,240,200,0.12)", border: "1px solid rgba(168,240,200,0.3)", borderRadius: 20, padding: "10px 16px", color: "#a8f0c8", fontFamily: "sans-serif", fontSize: 14, cursor: "pointer", letterSpacing: 1, marginTop: 8 }}>Admin</button>
           </div>
         )}
@@ -1074,10 +1134,10 @@ export default function DSGemsClient({ initialGems = [], initialPage = "home" }:
               ? <div style={{ textAlign: "center", color: "#888", padding: 60, fontFamily: "sans-serif" }}>No gems found.</div>
               : viewMode === "list"
                 ? <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                    {filtered.map(g => <GemListRow key={g.firestoreId} gem={g} onClick={setSelectedGem} />)}
+                    {filtered.map(g => <GemListRow key={g.firestoreId} gem={g} onClick={setSelectedGem} displayCurrency={displayCurrency} usdToLkr={usdToLkr} />)}
                   </div>
                 : <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 24 }}>
-                    {filtered.map(g => <GemCard key={g.firestoreId} gem={g} onClick={setSelectedGem} />)}
+                    {filtered.map(g => <GemCard key={g.firestoreId} gem={g} onClick={setSelectedGem} displayCurrency={displayCurrency} usdToLkr={usdToLkr} />)}
                   </div>
             }
           </div>
@@ -1227,7 +1287,7 @@ export default function DSGemsClient({ initialGems = [], initialPage = "home" }:
           </a>
         </div>
       </footer>
-      {selectedGem && <Modal gem={selectedGem} onClose={() => setSelectedGem(null)} />}
+      {selectedGem && <Modal gem={selectedGem} onClose={() => setSelectedGem(null)} displayCurrency={displayCurrency} usdToLkr={usdToLkr} />}
 
       {adminPrompt && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", zIndex: 3000, display: "flex", alignItems: "center", justifyContent: "center" }}>
