@@ -1282,7 +1282,7 @@ export default function DSGemsClient({ initialGems = [], initialPage = "home" }:
             <div className="ds-fade-1">
               <div style={{ fontSize: 12, color: "#06402b", letterSpacing: 3, textTransform: "uppercase", fontFamily: "sans-serif", fontWeight: 600, marginBottom: 16 }}>Est. Sri Lanka · Trading Worldwide</div>
               <h1 style={{ fontSize: "clamp(38px, 5vw, 58px)", color: "#06402b", fontWeight: 700, lineHeight: 1.08, margin: "0 0 4px" }}>
-                Every stone carries<br />the mountain it came from.
+                Every stone carries<br />the mine it came from.
               </h1>
               <span className="ds-about-underline" />
               <p style={{ fontSize: 17, color: "#444", lineHeight: 1.75, fontFamily: "sans-serif", maxWidth: 480, margin: "22px 0 28px" }}>
