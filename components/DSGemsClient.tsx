@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { db, auth } from "@/lib/firebase";  // ← CHANGE import path
 import { signInWithEmailAndPassword, signOut } from "firebase/auth";
 import {
@@ -270,6 +271,17 @@ function Modal({ gem, onClose, displayCurrency, usdToLkr }: { gem: any, onClose:
             ))}
           </div>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+
+            <button
+              onClick={() => {
+                const url = `${window.location.origin}${window.location.pathname}?gem=${gem.firestoreId}`;
+                navigator.clipboard.writeText(url);
+                alert("Link copied!");
+              }}
+              style={{ background: "none", border: "1px solid #06402b", borderRadius: 20, padding: "10px 20px", cursor: "pointer", fontSize: 14, color: "#06402b", fontFamily: "sans-serif" }}
+            >
+              Copy Link
+            </button>
             <span style={{
               fontSize: gem.priceOnInquiry ? 16 : 24,
               fontWeight: 700,
@@ -282,6 +294,7 @@ function Modal({ gem, onClose, displayCurrency, usdToLkr }: { gem: any, onClose:
             }}>
               {formatPrice(gem, displayCurrency, usdToLkr)}
             </span>
+            
             <a href={`mailto:dsgemslk@gmail.com?subject=${encodeURIComponent(`Enquiry: ${gem.name}`)}&body=${encodeURIComponent(`Hi, I'm interested in the ${gem.name} (${formatPrice(gem, displayCurrency, usdToLkr)}). Could you share more details?`)}`}
               style={{
                 background: "#06402b",
@@ -300,6 +313,7 @@ function Modal({ gem, onClose, displayCurrency, usdToLkr }: { gem: any, onClose:
             >
               Enquire Now
             </a>
+            
           </div>
         </div>
       </div>
@@ -913,6 +927,9 @@ function AdminPanel({ gems, onAdd, onUpdate, onRemove, onClose }: { gems: any[],
 // ─── MAIN APP ─────────────────────────────────────────────────────────────────
 export default function DSGemsClient({ initialGems = [], initialPage = "home" }: { initialGems: any[], initialPage: string }) {
   const [gems, setGems] = useState(initialGems);
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     // const unsub = onSnapshot(query(collection(db, "gems"), orderBy("createdAt", "desc")), async (snap) => {
@@ -966,6 +983,13 @@ export default function DSGemsClient({ initialGems = [], initialPage = "home" }:
       .catch(() => setUsdToLkr(300)); // fallback rate if API fails
   }, []);
 
+  useEffect(() => {
+    const gemId = searchParams.get("gem");
+    if (gemId && gems.length > 0) {
+      const found = gems.find(g => g.firestoreId === gemId);
+      if (found) setSelectedGem(found);
+    }
+  }, [searchParams, gems]);
 
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const treatments = ["All", ...Array.from(new Set(gems.map(g => g.treatment).filter(Boolean)))];
@@ -981,6 +1005,16 @@ export default function DSGemsClient({ initialGems = [], initialPage = "home" }:
       (treatment === "All" || g.treatment === treatment) &&
       (isNaN(weightNum) || (weightNum >= effectiveRange[0] && weightNum <= effectiveRange[1]));
   });
+
+  const openGem = (gem: any) => {
+    setSelectedGem(gem);
+    router.push(`${pathname}?gem=${gem.firestoreId}`, { scroll: false });
+  };
+
+  const closeGem = () => {
+    setSelectedGem(null);
+    router.push(pathname, { scroll: false });
+  };
 
   const handleAdminAccess = async () => {
     try {
@@ -1202,10 +1236,10 @@ export default function DSGemsClient({ initialGems = [], initialPage = "home" }:
               ? <div style={{ textAlign: "center", color: "#888", padding: 60, fontFamily: "sans-serif" }}>No gems found.</div>
               : viewMode === "list"
                 ? <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                    {filtered.map(g => <GemListRow key={g.firestoreId} gem={g} onClick={setSelectedGem} displayCurrency={displayCurrency} usdToLkr={usdToLkr} />)}
+                    {filtered.map(g => <GemListRow key={g.firestoreId} gem={g} onClick={openGem} displayCurrency={displayCurrency} usdToLkr={usdToLkr} />)}
                   </div>
                 : <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 24 }}>
-                    {filtered.map(g => <GemCard key={g.firestoreId} gem={g} onClick={setSelectedGem} displayCurrency={displayCurrency} usdToLkr={usdToLkr} />)}
+                    {filtered.map(g => <GemCard key={g.firestoreId} gem={g} onClick={openGem} displayCurrency={displayCurrency} usdToLkr={usdToLkr} />)}
                   </div>
             }
           </div>
@@ -1562,7 +1596,7 @@ export default function DSGemsClient({ initialGems = [], initialPage = "home" }:
           </a>
         </div>
       </footer>
-      {selectedGem && <Modal gem={selectedGem} onClose={() => setSelectedGem(null)} displayCurrency={displayCurrency} usdToLkr={usdToLkr} />}
+      {selectedGem && <Modal gem={selectedGem} onClose={closeGem} displayCurrency={displayCurrency} usdToLkr={usdToLkr} />}
 
       {adminPrompt && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", zIndex: 3000, display: "flex", alignItems: "center", justifyContent: "center" }}>
