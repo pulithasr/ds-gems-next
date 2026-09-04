@@ -43,7 +43,7 @@ async function uploadToCloudinary(file: File) {
 //   { id: 6, name: "Tanzanite", origin: "Tanzania", weight: "6.74 ct", clarity: "Eye Clean", treatment: "Heat Only", price: "USD 2,400", category: "Tanzanite", featured: false, description: "Deep velvety violet-blue with strong trichroism. AAA grade with excellent cut and polish.", badge: "", images: [], video: "" },
 // ];
 
-const CATEGORIES = ["All", "Sapphire", "Ruby", "Emerald", "Alexandrite", "Tanzanite"];
+const CATEGORIES = ["All", "Sapphire", "Ruby", "Emerald", "Alexandrite", "Tanzanite","Garnet"];
 
 const GEM_COLORS = {
   Sapphire:    { bg: "#1a3a6b", light: "#d4e3f7", dot: "#4a90d9" },
@@ -51,6 +51,7 @@ const GEM_COLORS = {
   Emerald:     { bg: "#06402b", light: "#d4f0e3", dot: "#2e9e6b" },
   Alexandrite: { bg: "#3a1a6b", light: "#e8d4f7", dot: "#8a4ad9" },
   Tanzanite:   { bg: "#2a1a6b", light: "#ddd4f7", dot: "#6a4ad9" },
+  Garnet:      { bg: "#5c1a2b", light: "#f0d4dc", dot: "#c94a6a" },
 };
 
 const BADGE_STYLES = {
@@ -528,7 +529,7 @@ function AdminPanel({ gems, onAdd, onUpdate, onRemove, onClose }: { gems: any[],
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }}>
                 <div><div style={{ fontSize: 12, color: "#666", marginBottom: 4 }}>Category</div>
                   <select style={inp} value={form.category} onChange={e => set("category", e.target.value)}>
-                    {["Sapphire","Ruby","Emerald","Alexandrite","Tanzanite"].map(c => <option key={c}>{c}</option>)}
+                    {["Sapphire","Ruby","Emerald","Alexandrite","Tanzanite","Garnet"].map(c => <option key={c}>{c}</option>)}
                   </select></div>
                 <div><div style={{ fontSize: 12, color: "#666", marginBottom: 4 }}>Badge</div>
                   <select style={inp} value={form.badge} onChange={e => set("badge", e.target.value)}>
@@ -1362,7 +1363,7 @@ export default function DSGemsClient({ initialGems = [], initialPage = "home" }:
           <div className="ds-fade-3" style={{ maxWidth: 1100, margin: "0 auto", padding: "0 32px 56px", textAlign: "center" }}>
             <div style={{ fontSize: 12, color: "#888", letterSpacing: 2, textTransform: "uppercase", fontFamily: "sans-serif", marginBottom: 14 }}>Explore What We Trade</div>
             <div style={{ display: "flex", justifyContent: "center", gap: 12, flexWrap: "wrap" }}>
-              {["Sapphire", "Ruby", "Emerald", "Alexandrite", "Tanzanite"].map(c => (
+              {["Sapphire", "Ruby", "Emerald", "Alexandrite", "Tanzanite","Garnet"].map(c => (
                 <button
                   key={c}
                   className="ds-gem-pill"
@@ -1556,7 +1557,7 @@ export default function DSGemsClient({ initialGems = [], initialPage = "home" }:
           <div>
             <div style={{ color: "#a8f0c8", fontSize: 13, fontFamily: "sans-serif", fontWeight: 600, letterSpacing: 1, textTransform: "uppercase", marginBottom: 16 }}>Gemstones</div>
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              {["Sapphire","Ruby","Emerald","Alexandrite","Tanzanite"].map(c => (
+              {["Sapphire","Ruby","Emerald","Alexandrite","Tanzanite","Garnet"].map(c => (
                 <button key={c} onClick={() => { setPage("home"); setCategory(c); }} style={{ background: "none", border: "none", color: "rgba(255,255,255,0.55)", fontFamily: "sans-serif", fontSize: 13, textAlign: "left", cursor: "pointer", padding: 0 }}>{c}</button>
               ))}
             </div>
