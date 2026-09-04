@@ -1296,14 +1296,6 @@ export default function DSGemsClient({ initialGems = [], initialPage = "home" }:
               animation: underlineGrow 0.8s ease 0.3s both;
             }
 
-            .ds-photo-frame {
-              transition: transform 0.35s ease, box-shadow 0.35s ease;
-            }
-            .ds-photo-wrap:hover .ds-photo-frame {
-              transform: rotate(0deg) scale(1.015);
-              box-shadow: 0 30px 70px rgba(6,64,43,0.3);
-            }
-
             .ds-value-card {
               transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
             }
@@ -1326,64 +1318,55 @@ export default function DSGemsClient({ initialGems = [], initialPage = "home" }:
             }
 
             @media (max-width: 760px) {
-              .ds-about-hero-grid { grid-template-columns: 1fr !important; }
               .ds-steps-row { flex-direction: column !important; }
               .ds-steps-row .ds-step-line { display: none !important; }
             }
           `}</style>
 
-          {/* ── HERO ── */}
-          <div className="ds-about-hero-grid" style={{ maxWidth: 1200, margin: "0 auto", padding: "72px 32px 60px", display: "grid", gridTemplateColumns: "1.05fr 0.95fr", gap: 52, alignItems: "center" }}>
-            <div className="ds-fade-1">
-              <div style={{ fontSize: 12, color: "#06402b", letterSpacing: 3, textTransform: "uppercase", fontFamily: "sans-serif", fontWeight: 600, marginBottom: 16 }}>Est. Sri Lanka · Trading Worldwide</div>
-              <h1 style={{ fontSize: "clamp(38px, 5vw, 58px)", color: "#06402b", fontWeight: 700, lineHeight: 1.08, margin: "0 0 4px" }}>
-                Every stone carries<br />the mine it came from.
-              </h1>
-              <span className="ds-about-underline" />
-              <p style={{ fontSize: 17, color: "#444", lineHeight: 1.75, fontFamily: "sans-serif", maxWidth: 480, margin: "22px 0 28px" }}>
-                DS Gems trades in natural gemstones sourced across Sri Lanka and Thailand — from rough stone to final cut — for collectors and dealers who care where a gem has been before it reaches them.
-              </p>
-              <button onClick={() => setPage("contact")} style={{ background: "#06402b", color: "#a8f0c8", border: "none", borderRadius: 30, padding: "13px 30px", fontSize: 14, fontFamily: "sans-serif", fontWeight: 600, letterSpacing: 1, cursor: "pointer" }}>
-                Start a Conversation
-              </button>
+          {/* ── HERO (cover image style) ── */}
+          <div
+            className="ds-fade-1"
+            style={{
+              position: "relative",
+              height: 340,
+              backgroundImage: `linear-gradient(rgba(3,43,28,0.72), rgba(3,43,28,0.72)), url('/about-hero.jpg')`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              textAlign: "center",
+              padding: "0 24px",
+            }}
+          >
+            <div style={{ fontSize: 12, color: "#a8f0c8", letterSpacing: 3, textTransform: "uppercase", fontFamily: "sans-serif", fontWeight: 600, marginBottom: 16 }}>
+              Est. Sri Lanka · Trading Worldwide
             </div>
+            <h1 style={{ fontSize: "clamp(34px, 5vw, 54px)", color: "#fff", fontWeight: 700, lineHeight: 1.1, margin: 0, maxWidth: 700 }}>
+              Every stone carries the mine it came from.
+            </h1>
+            <span className="ds-about-underline" style={{ margin: "10px auto 0" }} />
+          </div>
 
-            {/* Photo hero with interactive tilt */}
-            <div className="ds-fade-2 ds-photo-wrap" style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
-              <div style={{ position: "relative", width: "100%", maxWidth: 380 }}>
-                <div style={{
-                  position: "absolute",
-                  inset: "-14px",
-                  background: "linear-gradient(135deg, #06402b, #1a3a6b)",
-                  borderRadius: 24,
-                  opacity: 0.15,
-                  transform: "rotate(-3deg)"
-                }} />
-                <img
-                  className="ds-photo-frame"
-                  src="/about-hero.jpg"
-                  alt="Natural sapphire from Sri Lanka"
-                  style={{
-                    position: "relative",
-                    width: "100%",
-                    height: 340,
-                    objectFit: "cover",
-                    borderRadius: 20,
-                    boxShadow: "0 24px 60px rgba(6,64,43,0.2)",
-                    border: "6px solid #fff",
-                    display: "block"
-                  }}
-                />
-                
-              </div>
-            </div>
+          {/* ── HERO TEXT (white background) ── */}
+          <div className="ds-fade-2" style={{ maxWidth: 600, margin: "0 auto", padding: "44px 32px 8px", textAlign: "center" }}>
+            <p style={{ fontSize: 17, color: "#444", lineHeight: 1.75, fontFamily: "sans-serif", margin: "0 0 26px" }}>
+              DS Gems trades in natural gemstones sourced across Sri Lanka and Thailand — from rough stone to final cut — for collectors and dealers who care where a gem has been before it reaches them.
+            </p>
+            <button
+              onClick={() => setPage("contact")}
+              style={{ background: "#06402b", color: "#a8f0c8", border: "none", borderRadius: 30, padding: "13px 30px", fontSize: 14, fontFamily: "sans-serif", fontWeight: 600, letterSpacing: 1, cursor: "pointer" }}
+            >
+              Start a Conversation
+            </button>
           </div>
 
           {/* ── GEM TYPES (interactive — links to filtered storefront) ── */}
-          <div className="ds-fade-3" style={{ maxWidth: 1100, margin: "0 auto", padding: "0 32px 56px", textAlign: "center" }}>
+          <div className="ds-fade-3" style={{ maxWidth: 1100, margin: "0 auto", padding: "56px 32px 56px", textAlign: "center" }}>
             <div style={{ fontSize: 12, color: "#888", letterSpacing: 2, textTransform: "uppercase", fontFamily: "sans-serif", marginBottom: 14 }}>Explore What We Trade</div>
             <div style={{ display: "flex", justifyContent: "center", gap: 12, flexWrap: "wrap" }}>
-              {["Sapphire", "Ruby", "Emerald", "Alexandrite", "Tanzanite","Garnet"].map(c => (
+              {["Sapphire", "Ruby", "Emerald", "Alexandrite", "Tanzanite", "Garnet"].map(c => (
                 <button
                   key={c}
                   className="ds-gem-pill"
