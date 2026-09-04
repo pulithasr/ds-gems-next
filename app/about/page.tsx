@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import DSGemsClient from "@/components/DSGemsClient";
 
 export const metadata: Metadata = {
@@ -8,5 +9,9 @@ export const metadata: Metadata = {
 };
 
 export default function AboutPage() {
-  return <DSGemsClient initialGems={[]} initialPage="about" />;
+  return (
+    <Suspense fallback={null}>
+      <DSGemsClient initialGems={[]} initialPage="about" />
+    </Suspense>
+  );
 }
