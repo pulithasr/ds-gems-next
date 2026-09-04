@@ -1461,7 +1461,7 @@ export default function DSGemsClient({ initialGems = [], initialPage = "home" }:
       )}
 
       {page === "contact" && (
-        <div style={{ maxWidth: 1000, margin: "60px auto", padding: "0 32px" }}>
+        <div style={{ background: "#ffffff" }}>
           <style>{`
             @keyframes fadeUp {
               0%   { opacity: 0; transform: translateY(14px); }
@@ -1471,58 +1471,55 @@ export default function DSGemsClient({ initialGems = [], initialPage = "home" }:
             .ds-contact-fade-2 { animation: fadeUp 0.6s ease 0.2s both; }
           `}</style>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 56, alignItems: "center" }}>
-
-            <div className="ds-contact-fade-1">
-              <div style={{ fontSize: 12, color: "#888", letterSpacing: 3, textTransform: "uppercase", fontFamily: "sans-serif", marginBottom: 12 }}>Get in Touch</div>
-              <h2 style={{ fontSize: 40, color: "#06402b", fontWeight: 700, marginBottom: 20 }}>Contact DS Gems</h2>
-              <p style={{ fontSize: 16, color: "#555", fontFamily: "sans-serif", lineHeight: 1.7, marginBottom: 32 }}>For enquiries, pricing, certificates, or to arrange a viewing our team is ready to assist international buyers and dealers.</p>
-              <div style={{ display: "flex", flexDirection: "column", gap: 14, marginBottom: 36 }}>
-                {[["Email","dsgemslk@gmail.com"],["WhatsApp","+94 71 555 7038"],["Instagram","@dsgemslk"],["Location","Colombo, Sri Lanka"],["Business Hours","Mon – Sat, 9am – 6pm"]].map(([k,v]) => (
-                  <div key={k} style={{ display: "flex", gap: 18, alignItems: "flex-start", background: "#f0f9f4", borderRadius: 12, padding: "14px 18px", border: "1px solid #d0eadd" }}>
-                    <div style={{ fontSize: 13, color: "#888", fontFamily: "sans-serif", minWidth: 110 }}>{k}</div>
-                    {k === "Instagram" ? (
-                      <a href="https://www.instagram.com/dsgemslk" target="_blank" rel="noreferrer" style={{ fontSize: 16, color: "#06402b", fontWeight: 600, textDecoration: "none" }}>{v}</a>
-                    ) : k === "WhatsApp" ? (
-                      <a href="https://wa.me/94715557038" target="_blank" rel="noreferrer" style={{ fontSize: 16, color: "#06402b", fontWeight: 600, textDecoration: "none" }}>{v}</a>
-                    ) : (
-                      <div style={{ fontSize: 16, color: "#06402b", fontWeight: 600 }}>{v}</div>
-                    )}
-                  </div>
-                ))}
-              </div>
-              <div style={{ background: "#06402b", borderRadius: 16, padding: "24px 28px", textAlign: "center" }}>
-                <div style={{ color: "#a8f0c8", fontSize: 20, fontWeight: 700, marginBottom: 8 }}>Ready to Trade?</div>
-                <p style={{ color: "rgba(255,255,255,0.7)", fontFamily: "sans-serif", fontSize: 14, lineHeight: 1.6, marginBottom: 16 }}>Reach out via email or WhatsApp. We respond within 24 hours on business days.</p>
-                <span style={{ background: "rgba(168,240,200,0.15)", border: "1px solid rgba(168,240,200,0.35)", color: "#a8f0c8", borderRadius: 20, padding: "8px 24px", fontFamily: "sans-serif", fontSize: 13 }}>dsgemslk@gmail.com</span>
-              </div>
+          {/* ── COVER HERO with image behind heading ── */}
+          <div
+            className="ds-contact-fade-1"
+            style={{
+              position: "relative",
+              height: 320,
+              backgroundImage: `linear-gradient(rgba(3,43,28,0.72), rgba(3,43,28,0.72)), url('/contact-hero.jpg')`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              textAlign: "center",
+              padding: "0 24px",
+            }}
+          >
+            <div style={{ fontSize: 12, color: "#a8f0c8", letterSpacing: 3, textTransform: "uppercase", fontFamily: "sans-serif", marginBottom: 14 }}>
+              Get in Touch
             </div>
+            <h2 style={{ fontSize: "clamp(32px, 5vw, 48px)", color: "#fff", fontWeight: 700, margin: 0 }}>
+              Contact DS Gems
+            </h2>
+          </div>
 
-            <div className="ds-contact-fade-2" style={{ position: "relative" }}>
-              <div style={{
-                position: "absolute",
-                inset: "-14px",
-                background: "linear-gradient(135deg, #06402b, #1a3a6b)",
-                borderRadius: 24,
-                opacity: 0.15,
-                transform: "rotate(3deg)"
-              }} />
-              <img
-                src="/contact-hero.jpg"
-                alt="DS Gems gemstone collection"
-                style={{
-                  position: "relative",
-                  width: "100%",
-                  height: 460,
-                  objectFit: "cover",
-                  borderRadius: 20,
-                  boxShadow: "0 24px 60px rgba(6,64,43,0.2)",
-                  border: "6px solid #fff",
-                  display: "block"
-                }}
-              />
+          {/* ── WHITE BACKGROUND CONTENT ── */}
+          <div className="ds-contact-fade-2" style={{ maxWidth: 700, margin: "0 auto", padding: "56px 32px 72px" }}>
+            <p style={{ fontSize: 16, color: "#555", fontFamily: "sans-serif", lineHeight: 1.7, marginBottom: 32, textAlign: "center" }}>
+              For enquiries, pricing, certificates, or to arrange a viewing our team is ready to assist international buyers and dealers.
+            </p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 14, marginBottom: 36 }}>
+              {[["Email","dsgemslk@gmail.com"],["WhatsApp","+94 71 555 7038"],["Instagram","@dsgemslk"],["Location","Colombo, Sri Lanka"],["Business Hours","Mon – Sat, 9am – 6pm"]].map(([k,v]) => (
+                <div key={k} style={{ display: "flex", gap: 18, alignItems: "flex-start", background: "#f0f9f4", borderRadius: 12, padding: "14px 18px", border: "1px solid #d0eadd" }}>
+                  <div style={{ fontSize: 13, color: "#888", fontFamily: "sans-serif", minWidth: 110 }}>{k}</div>
+                  {k === "Instagram" ? (
+                    <a href="https://www.instagram.com/dsgemslk" target="_blank" rel="noreferrer" style={{ fontSize: 16, color: "#06402b", fontWeight: 600, textDecoration: "none" }}>{v}</a>
+                  ) : k === "WhatsApp" ? (
+                    <a href="https://wa.me/94715557038" target="_blank" rel="noreferrer" style={{ fontSize: 16, color: "#06402b", fontWeight: 600, textDecoration: "none" }}>{v}</a>
+                  ) : (
+                    <div style={{ fontSize: 16, color: "#06402b", fontWeight: 600 }}>{v}</div>
+                  )}
+                </div>
+              ))}
             </div>
-
+            <div style={{ background: "#06402b", borderRadius: 16, padding: "24px 28px", textAlign: "center" }}>
+              <div style={{ color: "#a8f0c8", fontSize: 20, fontWeight: 700, marginBottom: 8 }}>Ready to Trade?</div>
+              <p style={{ color: "rgba(255,255,255,0.7)", fontFamily: "sans-serif", fontSize: 14, lineHeight: 1.6, marginBottom: 16 }}>Reach out via email or WhatsApp. We respond within 24 hours on business days.</p>
+              <span style={{ background: "rgba(168,240,200,0.15)", border: "1px solid rgba(168,240,200,0.35)", color: "#a8f0c8", borderRadius: 20, padding: "8px 24px", fontFamily: "sans-serif", fontSize: 13 }}>dsgemslk@gmail.com</span>
+            </div>
           </div>
         </div>
       )}
