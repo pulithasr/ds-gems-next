@@ -5,6 +5,25 @@ import { useState, useRef, useEffect } from "react";
 // ── CLOUDINARY CONFIG (same as your existing setup) ──
 const CLOUD_NAME = "dixrukvmw";
 
+function DiamondIcon({ size = 28 }: { size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 1440 998"
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      stroke="#a8f0c8"
+      strokeWidth="10"
+      strokeLinejoin="round"
+    >
+      <path d="M1209.4,254.5l-13.3-10.9l-374,457.3l148.8-445.6l-16.3-5.4L804.1,700.2l-79.4-454.7l182-126.9l62.6,134.7l15.6-7.2 l-63.3-136.3l5.2-5.2l5.9-4.1l-0.7-1l69.9-69.9l-12.1-12.1l-73.9,73.9l-2.1,1.4l-0.5-1L897.6,99l1.7,3.7L720,227.8l-179.3-125 l1.7-3.7l-15.6-7.2l-0.5,1l-2.1-1.4l-73.9-73.9l-12.1,12.1l69.9,69.9l-0.7,1l5.9,4.1l5.2,5.2l-63.3,136.3l15.6,7.2l62.6-134.7 l182,126.9l-79.4,454.7L485.3,249.9l-16.3,5.4l148.8,445.6L247.5,248.1l2.7-0.7l-31.1-126.9l-16.7,4.1l31.1,126.9l1.1-0.3l-4,3.3 l402.6,492.2l71.6,214.3l10.1-5.6v3.9l3.5,0.4l0,0.3l1.6-0.2l1.6,0.2l0-0.3l3.5-0.4v-3.9l10.1,5.6l71.6-214.3L1209.4,254.5z M720,951.7l-72.6-217.2L720,318.6l72.6,415.8L720,951.7z" />
+      <path d="M1364.9,252.8l-187-207.8l-3.3,2.9l-27.6-39.4l-10.5,7.4l32.3,46L1025,12.5l-5.6,16.2l165.6,57.1l0.1-0.3l32.8,46.8 l-20.9,85.5L747.8,15.8l-7,15.7l452.2,203.4l-3.1,12.6l5.5,1.3L759.5,889.1l-60.2,65.7l10,9.7l654.1-705.7l-3.2-1.5L1364.9,252.8z M1315.6,253.7l2.1-1.5l-82.5-117.7l0,0L1341,254.6L984,644.2l332.2-390L1315.6,253.7z M1206.5,251.5l2.3-9.5l40.7,18.3l7-15.7 L1213,225l18.1-74l69.6,99.3L875.1,750l335.8-493.6l-8.8-6L1206.5,251.5z M243.3,246.8l-14.2,9.7L564.9,750L139.2,250.4L254.8,85.5 l0.1,0.3l165.6-57.1L415,12.5L271.3,62l32.3-46l-10.5-7.4L265.4,48l-3.3-2.9l-187,207.8l4.7,4.4l-3.2,1.5l652.9,704.4l9.6-10.2 l-58.5-63.9L243.3,246.8z M456,644.2L99,254.6l105.9-120.2l-82.6,117.8l2.1,1.5l-0.6,0.5L456,644.2z M183.4,244.6L692.2,15.8l7,15.7 L190.5,260.3L183.4,244.6z" />
+      <path d="M1418.1,241.5v20h-172.8l-50.7,13.7l-50.7-13.7h-136l-50.7,13.7l-50.7-13.7h-136L720,275.3l-50.7-13.7h-136l-50.7,13.7 L432,261.5H296l-50.7,13.7l-50.7-13.7H21.9v-20h172.8l50.7-13.7l50.7,13.7h136l50.7-13.7l50.7,13.7h136l50.7-13.7l0,0l50.7,13.7h136 l50.7-13.7l50.7,13.7h136l50.7-13.7l50.7,13.7H1418.1z" />
+      <path d="M1160.6,7L1160.6,7l-434,0h-13.2h-434l0,0L7.9,251.4l0,0l709.8,735l2.1,2.2l2.5-2.5h0L1432,251.4l0,0L1160.6,7z M720,951.7 l-675.1-699l244.3-220h424.2h13.2h424.2l244.3,220L720,951.7z" />
+    </svg>
+  );
+}
 // ── KNOWLEDGE BASE ──
 const KNOWLEDGE_BASE = `
 You are the DS Gems virtual assistant. You help customers learn about gemstones, pricing, and the DS Gems collection.
@@ -218,10 +237,7 @@ export default function GemChatbot() {
             <line x1="18" y1="4" x2="4" y2="18" stroke="#a8f0c8" strokeWidth="2.5" strokeLinecap="round" />
           </svg>
         ) : (
-          <svg width="26" height="26" viewBox="0 0 28 28" fill="none">
-            <polygon points="14,2 26,10 14,26 2,10" fill="#a8f0c8" fillOpacity="0.95" />
-            <polygon points="14,2 26,10 14,14" fill="white" fillOpacity="0.35" />
-          </svg>
+          <DiamondIcon size={26} />
         )}
       </button>
 
@@ -248,10 +264,7 @@ export default function GemChatbot() {
           {/* Header */}
           <div style={{ background: "linear-gradient(135deg, #06402b, #0a5c3e)", borderRadius: "20px 20px 0 0", padding: "14px 18px", display: "flex", alignItems: "center", gap: 10 }}>
             <div style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(168,240,200,0.15)", border: "1px solid rgba(168,240,200,0.3)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-              <svg width="18" height="18" viewBox="0 0 28 28" fill="none">
-                <polygon points="14,2 26,10 14,26 2,10" fill="#a8f0c8" fillOpacity="0.95" />
-                <polygon points="14,2 26,10 14,14" fill="white" fillOpacity="0.35" />
-              </svg>
+              <DiamondIcon size={18} />
             </div>
             <div>
               <div style={{ color: "#a8f0c8", fontWeight: 700, fontSize: 14, fontFamily: "'Cormorant Garamond', Georgia, serif", letterSpacing: 1 }}>DS Gems Assistant</div>
